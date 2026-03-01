@@ -2,6 +2,7 @@ from peewee import (
     AutoField,
     BooleanField,
     CharField,
+    CompositeKey,
     DecimalField,
     ForeignKeyField,
     IntegerField,
@@ -36,13 +37,16 @@ class Order(BaseModel):
 
 
 class OrderProduct(BaseModel):
-    order_id = ForeignKeyField(Order, primary_key=True, backref="products")
-    product_id = ForeignKeyField(Product, primary_key=True, backref="orders")
+    order = ForeignKeyField(Order, backref="products")
+    product = ForeignKeyField(Product, backref="orders")
     quantity = IntegerField()
+
+    class Meta:
+        primary_key = CompositeKey("order", "product")
 
 
 class CreditCard(BaseModel):
-    order_id = ForeignKeyField(Order, primary_key=True, backref="credit_card")
+    order = ForeignKeyField(Order, primary_key=True, backref="credit_card")
     name = CharField()
     number = CharField()
     expiration_year = IntegerField()
@@ -51,7 +55,7 @@ class CreditCard(BaseModel):
 
 
 class ShippingInformation(BaseModel):
-    order_id = ForeignKeyField(Order, primary_key=True, backref="shipping_information")
+    order = ForeignKeyField(Order, primary_key=True, backref="shipping_information")
     country = CharField()
     address = CharField()
     postal_code = CharField()
@@ -60,7 +64,7 @@ class ShippingInformation(BaseModel):
 
 
 class Transaction(BaseModel):
-    order_id = ForeignKeyField(Order, primary_key=True, backref="transaction")
+    order = ForeignKeyField(Order, primary_key=True, backref="transaction")
     amount = DecimalField(decimal_places=2)
-    credit_card_id = ForeignKeyField(CreditCard)
-    shipping_information_id = ForeignKeyField(ShippingInformation)
+    credit_card = ForeignKeyField(CreditCard)
+    shipping_information = ForeignKeyField(ShippingInformation)

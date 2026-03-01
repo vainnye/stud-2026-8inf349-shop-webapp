@@ -16,6 +16,8 @@ uv sync
 
 svp utilisez `uv` plutôt que pip, ça sera plus simple pour tout le monde
 
+pour run le projet ou un fichier, utilisez la commande `uv run`
+
 ## Installer uv
 
 **sur Windows**

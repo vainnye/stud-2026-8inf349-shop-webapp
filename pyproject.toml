@@ -1,5 +1,5 @@
 [project]
-name = "stud-2026-8inf349-shop-webapp"
+name = "shop_webapp"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
@@ -13,3 +13,7 @@ dependencies = [
 members = [
     "temp",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

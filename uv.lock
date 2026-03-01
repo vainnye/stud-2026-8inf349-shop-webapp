@@ -198,9 +198,9 @@ wheels = [
 ]
 
 [[package]]
-name = "stud-2026-8inf349-shop-webapp"
+name = "shop-webapp"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "flask" },
     { name = "peewee" },
