@@ -3,7 +3,7 @@ import json
 import requests
 from flask import Flask
 
-from shop_webapp.api import api
+from shop_webapp.api import API_URL_PREFIX, api
 from shop_webapp.model import (
     CreditCard,
     Order,
@@ -90,7 +90,7 @@ def after_request(response):
 # -----------------
 
 # adding the api endpoints
-app.register_blueprint(api, url_prefix="/api/")
+app.register_blueprint(api, url_prefix=API_URL_PREFIX)
 app.logger.debug("api available at http://127.0.0.1:5000/api/")
 app.logger.debug(
     f"all api available resources: {[r.rule for r in app.url_map.iter_rules() if r.endpoint.startswith('api.')]}"

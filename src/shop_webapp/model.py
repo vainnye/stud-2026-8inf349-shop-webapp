@@ -11,6 +11,14 @@ from peewee import (
     TextField,
 )
 
+"""
+## Good practices
+
+les noms des backrefs (dans ForeignKeyField) sont toujours au pluriel,
+même si les contraintes de la BD ne permettent pas d'avoir plusieurs backrefs
+Dans tous les cas ce sera une liste
+"""
+
 db = SqliteDatabase("database.db")
 
 
@@ -29,19 +37,17 @@ class Product(BaseModel):
     price = DecimalField(decimal_places=2)
 
     def __str__(self):
-        return f"Product(id={self.id}, name='{self.name}', price={self.price})"
+        return f"Product(id={self.id!r}, name={self.name!r}, price={self.price!r})"
 
 
 class Order(BaseModel):
     id = AutoField(primary_key=True)
-    total_price = DecimalField(decimal_places=2)
-    total_price_tax = DecimalField(decimal_places=2)
-    email = CharField()
+    total_price = DecimalField(decimal_places=2, null=True)
+    total_price_tax = DecimalField(decimal_places=2, null=True)
+    email = CharField(null=True)
 
     def __str__(self):
-        return (
-            f"Order(id={self.id}, email='{self.email}', total_price={self.total_price})"
-        )
+        return f"Order(id={self.id!r}, email={self.email!r}, total_price={self.total_price!r})"
 
 
 class OrderProduct(BaseModel):
@@ -49,15 +55,15 @@ class OrderProduct(BaseModel):
     product = ForeignKeyField(Product, backref="orders")
     quantity = IntegerField()
 
-    class Meta:
+    class Meta:  # type: ignore
         primary_key = CompositeKey("order", "product")
 
     def __str__(self):
-        return f"OrderProduct(order_id={self.order.id}, product_id={self.product.id}, quantity={self.quantity})"
+        return f"OrderProduct(order_id={self.order.id!r}, product_id={self.product.id!r}, quantity={self.quantity!r})"
 
 
 class CreditCard(BaseModel):
-    order = ForeignKeyField(Order, primary_key=True, backref="credit_card")
+    order = ForeignKeyField(Order, primary_key=True, backref="credit_cards")
     name = CharField()
     number = CharField()
     expiration_year = IntegerField()
@@ -65,11 +71,11 @@ class CreditCard(BaseModel):
     expiration_month = IntegerField()
 
     def __str__(self):
-        return f"CreditCard(order_id={self.order.id}, name='{self.name}', number='****{self.number[-4:]}')"
+        return f"CreditCard(order_id={self.order.id!r}, name={self.name!r}, number={self.number!r})"
 
 
 class ShippingInformation(BaseModel):
-    order = ForeignKeyField(Order, primary_key=True, backref="shipping_information")
+    order = ForeignKeyField(Order, primary_key=True, backref="shipping_informations")
     country = CharField()
     address = CharField()
     postal_code = CharField()
@@ -77,14 +83,14 @@ class ShippingInformation(BaseModel):
     province = CharField()
 
     def __str__(self):
-        return f"ShippingInformation(order_id={self.order.id}, address='{self.address}', city='{self.city}', country='{self.country}')"
+        return f"ShippingInformation(order_id={self.order.id!r}, address={self.address!r}, city={self.city!r}, country={self.country!r})"
 
 
 class Transaction(BaseModel):
-    order = ForeignKeyField(Order, primary_key=True, backref="transaction")
-    amount = DecimalField(decimal_places=2)
-    credit_card = ForeignKeyField(CreditCard)
-    shipping_information = ForeignKeyField(ShippingInformation)
+    order = ForeignKeyField(Order, primary_key=True, backref="transactions")
+    id = CharField(unique=True)
+    success = BooleanField()
+    amount_charged = DecimalField(decimal_places=2)
 
     def __str__(self):
-        return f"Transaction(order_id={self.order.id}, amount={self.amount})"
+        return f"Transaction(order_id={self.order.id!r}, id={self.id!r}, success={self.success!r}, amount_charged={self.amount_charged!r})"
