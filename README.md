@@ -14,9 +14,26 @@ uv sync
 
 **ça y est vous pouvez coder**
 
-svp utilisez `uv` plutôt que pip, ça sera plus simple pour tout le monde
+svp utilisez [uv](<README#Installer uv>) plutôt que pip, ça sera plus simple pour tout le monde
 
-pour run le projet ou un fichier, utilisez la commande `uv run`
+**run le projet (l'app flask)**
+en debug mode (avec hot reload):
+```bash
+flask --app shop_webapp --debug run
+```
+
+**run un fichier faisant appel au projet**
+exemple:
+```bash
+uv run .\tests\fiddle\fetch_products.py
+```
+
+### bonnes pratiques
+
+**logging**  
+Toujours utiliser le logger lié à flask si le code tourne en mm temps que l'app flask.  
+utiliser `app.logger` quand vous pouvez accéder à la variable `app`  
+sinon utiliser `flask.current_app.logger`
 
 ## Installer uv
 
