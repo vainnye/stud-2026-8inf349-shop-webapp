@@ -3,7 +3,7 @@ from peewee import (
     BooleanField,
     CharField,
     CompositeKey,
-    DecimalField,
+    FloatField,
     ForeignKeyField,
     IntegerField,
     Model,
@@ -33,8 +33,8 @@ class Product(BaseModel):
     description = TextField()
     image = CharField()
     in_stock = BooleanField()
-    weight = IntegerField()
-    price = DecimalField(decimal_places=2)
+    weight = FloatField()
+    price = FloatField()
 
     def __str__(self):
         return f"Product(id={self.id!r}, name={self.name!r}, price={self.price!r})"
@@ -42,17 +42,18 @@ class Product(BaseModel):
 
 class Order(BaseModel):
     id = AutoField(primary_key=True)
-    total_price = DecimalField(decimal_places=2, null=True)
-    total_price_tax = DecimalField(decimal_places=2, null=True)
     email = CharField(null=True)
+    total_price = FloatField(null=True)
+    total_price_tax = FloatField(null=True)
+    shipping_price = FloatField(null=True)
 
     def __str__(self):
         return f"Order(id={self.id!r}, email={self.email!r}, total_price={self.total_price!r})"
 
 
 class OrderProduct(BaseModel):
-    order = ForeignKeyField(Order, backref="products")
-    product = ForeignKeyField(Product, backref="orders")
+    order = ForeignKeyField(Order, backref="order_products")
+    product = ForeignKeyField(Product, backref="order_products")
     quantity = IntegerField()
 
     class Meta:  # type: ignore
@@ -75,7 +76,9 @@ class CreditCard(BaseModel):
 
 
 class ShippingInformation(BaseModel):
-    order = ForeignKeyField(Order, primary_key=True, backref="shipping_informations")
+    order = ForeignKeyField(
+        Order, primary_key=True, backref="shipping_informations"
+    )  # puting an s at the end for uniformity even though not grammaticaly correct
     country = CharField()
     address = CharField()
     postal_code = CharField()
@@ -90,7 +93,7 @@ class Transaction(BaseModel):
     order = ForeignKeyField(Order, primary_key=True, backref="transactions")
     id = CharField(unique=True)
     success = BooleanField()
-    amount_charged = DecimalField(decimal_places=2)
+    amount_charged = FloatField()
 
     def __str__(self):
         return f"Transaction(order_id={self.order.id!r}, id={self.id!r}, success={self.success!r}, amount_charged={self.amount_charged!r})"
