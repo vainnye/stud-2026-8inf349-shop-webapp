@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from peewee import (
     AutoField,
     BooleanField,
@@ -10,6 +12,7 @@ from peewee import (
     SqliteDatabase,
     TextField,
 )
+from werkzeug.routing.rules import Weighting
 
 """
 ## Good practices
@@ -33,7 +36,7 @@ class Product(BaseModel):
     description = TextField()
     image = CharField()
     in_stock = BooleanField()
-    weight = FloatField()
+    weight = IntegerField()
     price = FloatField()
 
     def __str__(self):
@@ -46,9 +49,42 @@ class Order(BaseModel):
     total_price = FloatField(null=True)
     total_price_tax = FloatField(null=True)
     shipping_price = FloatField(null=True)
+    paid = BooleanField()
 
     def __str__(self):
         return f"Order(id={self.id!r}, email={self.email!r}, total_price={self.total_price!r})"
+
+    def calc_total_price(self, price, quantity):
+        self.total_price = price * quantity
+
+    def calc_total_price_tax(self, total_price, province):
+        match province:
+            case "QC":
+                coef = 1.15
+            case "ON":
+                coef = 1.13
+            case "AB":
+                coef = 1.05
+            case "BC":
+                coef = 1.12
+            case "NS":
+                coef = 1.14
+            case _:
+                coef = 1.10  # taxe par défaut
+                # TODO: faire des recherches sur les taxes
+
+        self.total_price_tax = total_price * coef
+
+    def calc_shipping_price(self, total_price_tax, weight, quantity):
+        total_weight = weight * quantity
+        if total_weight < 500:
+            shipping_fee = 5
+        elif 500 <= total_weight < 2000:
+            shipping_fee = 10
+        else:
+            shipping_fee = 25
+
+        self.shipping_price = total_price_tax + shipping_fee
 
 
 class OrderProduct(BaseModel):

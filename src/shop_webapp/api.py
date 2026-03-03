@@ -2,19 +2,20 @@
 Api endpoints
 """
 
-from dataclasses import dataclass
-from enum import StrEnum, auto
-from logging import getLogger
-from pathlib import Path
-from statistics import quantiles
-
 from flask import Blueprint, current_app, request
 from peewee import DoesNotExist, IntegrityError
+from playhouse.shortcuts import model_to_dict
 
-from shop_webapp.model import Order, OrderProduct, Product, db
+from shop_webapp.model import (
+    CreditCard,
+    Order,
+    OrderProduct,
+    Product,
+    ShippingInformation,
+    Transaction,
+    db,
+)
 from shop_webapp.util import validate_schema
-
-log = getLogger(__name__)
 
 api = Blueprint("api", __name__)
 
@@ -42,7 +43,7 @@ def get_products():
 
 @db.atomic()
 def place_order_for_product(product, quantity):
-    order = Order.create()
+    order = Order.create(paid=False)
     OrderProduct.create(order=order, product=product, quantity=quantity)
     return order
 
@@ -98,3 +99,92 @@ def post_order():
         302,  # HTTP_302 Found
         {"Location": f"{API_URL_PREFIX}order/{order.id}"},
     )
+
+
+@api.get("/order/<int:id>")
+def get_order_by_id(id: int):
+    try:
+        with db.atomic():  # transaction pour assurer l'intégrité des données
+            order = Order.get_by_id(id)
+            order_product = order.order_products.first()
+            product = order_product.product
+            transaction = (
+                order.transactions.select(
+                    Transaction.id,
+                    Transaction.success,
+                    Transaction.amount_charged,
+                )
+                .dicts()
+                .first()
+                or {}
+            )
+            credit_card = (
+                order.credit_cards.select(
+                    CreditCard.name,
+                    CreditCard.number,
+                    CreditCard.expiration_month,
+                    CreditCard.expiration_year,
+                    CreditCard.cvv,
+                )
+                .dicts()
+                .first()
+                or {}
+            )
+            shipping_information = (
+                order.shipping_informations.select(
+                    ShippingInformation.country,
+                    ShippingInformation.province,
+                    ShippingInformation.address,
+                    ShippingInformation.city,
+                    ShippingInformation.postal_code,
+                )
+                .dicts()
+                .first()
+                or {}
+            )
+
+        if not order.paid:
+            # update the prices
+            order.calc_total_price(product.price, order_product.quantity)
+            if shipping_information and (
+                province := shipping_information.get(ShippingInformation.province)
+            ):
+                order.calc_total_price_tax(order.total_price, province)
+                order.calc_shipping_price(
+                    order.total_price_tax, order.weight, order_product.quantity
+                )
+            order.save()
+
+        response_order = model_to_dict(
+            order,
+            only=(
+                Order.id,
+                Order.email,
+                Order.paid,
+                Order.total_price,
+                Order.total_price_tax,
+                Order.shipping_price,
+            ),
+        )
+
+        response_order["transaction"] = transaction
+        response_order["shipping_information"] = shipping_information
+        response_order["credit_card"] = credit_card
+        response_order["product"] = {
+            "id": product.id,
+            "quantity": order_product.quantity,
+        }
+
+        return {"order": response_order}
+    except DoesNotExist as err:
+        current_app.logger.debug(f"{err!r}")
+        return (
+            "",
+            404,  # HTTP_404 Not found
+        )
+    except Exception as err:
+        current_app.logger.debug(f"{err!r}")
+        return (
+            "",
+            500,  # HTTP_500 Internal Server Error
+        )

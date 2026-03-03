@@ -21,5 +21,5 @@ Transaction.insert(
 t = Transaction.get_by_id(o)
 print(t)
 
-print(list(o.products))
+print(list(o.order_products))
 print(list(o.transactions))
