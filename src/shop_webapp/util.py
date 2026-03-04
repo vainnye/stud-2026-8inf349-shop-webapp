@@ -52,7 +52,8 @@ class ValidationError(Exception):
 
 # Get the host and port using the same logic as Flask's run command
 def get_server_address():
-    app = current_app._get_current_object()
+    """get server address as f'http://{host}:{port}'"""
+    app = current_app._get_current_object()  # type: ignore
 
     # Check SERVER_NAME config first
     server_name = app.config.get("SERVER_NAME")
@@ -67,15 +68,15 @@ def get_server_address():
     return f"http://{host}:{port}"
 
 
-def fetch_and_upsert_products(local_file=None):
+def fetch_and_upsert_products(location: str):
     """
     Fetches product data from a remote API and upserts it into the local Product table.
 
     cf. "Récupération des produits" dans le pdf
     """
-    if not local_file:
+    if location.startswith("https://") or location.startswith("http://"):
         try:
-            response = requests.get("http://dimensweb.uqac.ca/~jgnault/shops/products/")
+            response = requests.get(location)
             response.raise_for_status()
             json_response = response.json()
         except requests.exceptions.RequestException as e:
@@ -89,7 +90,7 @@ def fetch_and_upsert_products(local_file=None):
         current_app.logger.debug("products fetched on startup")
     else:
         current_app.logger.debug("products loaded from local file")
-        with open(local_file) as f:
+        with open(location) as f:
             json_response = json.load(f)
             db.connect()
             # upserting products
