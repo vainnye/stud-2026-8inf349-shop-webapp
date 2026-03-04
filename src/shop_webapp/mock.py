@@ -5,25 +5,25 @@ import string
 from flask import current_app, request
 
 import shop_webapp.api as api_module
-from shop_webapp.api import API_URL_PREFIX, api
+from shop_webapp.api import api
+from shop_webapp.config import API_URL_PATH, MOCK_API_PAYMENT_PATH
 from shop_webapp.util import ValidationError, get_server_address, validate_schema
 
 
 def use_mocks():
-    SERVER_ADDRESS = get_server_address()
+    server_address = get_server_address()
 
-    THIRD_PARTY_PAYMENT_URL = "/mocks/shops/pay/"
-    api_module.THIRD_PARTY_PAYMENT_COMPLETE_URL = (
-        SERVER_ADDRESS + API_URL_PREFIX.removesuffix("/") + THIRD_PARTY_PAYMENT_URL
+    api_module.THIRD_PARTY_PAYMENT_URL = (
+        server_address + (API_URL_PATH / MOCK_API_PAYMENT_PATH).as_posix()
     )
 
     current_app.logger.warning("Using mocks")
 
     current_app.logger.warning(
-        f"Using mock payment API: {api_module.THIRD_PARTY_PAYMENT_COMPLETE_URL}"
+        f"Using mock payment API: {api_module.THIRD_PARTY_PAYMENT_URL}"
     )
 
-    @api.post(THIRD_PARTY_PAYMENT_URL)
+    @api.post(MOCK_API_PAYMENT_PATH.as_posix() + "/")
     def third_party_api():
         current_app.logger.warning("Using mock payment API")
         try:

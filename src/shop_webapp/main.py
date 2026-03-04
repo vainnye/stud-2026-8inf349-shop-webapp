@@ -1,12 +1,9 @@
-import json
 import os
-from pathlib import Path
-from pickle import GLOBAL
 
-import requests
-from flask import Flask, redirect, send_from_directory, url_for
+from flask import Flask, send_from_directory
 
 from shop_webapp.api import API_URL_PREFIX, api
+from shop_webapp.config import INIT_PRODUCTS_LOCATION, INSTANCE_FOLDER, STATIC_FOLDER
 from shop_webapp.model import (
     CreditCard,
     Order,
@@ -18,14 +15,10 @@ from shop_webapp.model import (
 )
 from shop_webapp.util import fetch_and_upsert_products, get_server_address
 
-# PROJECT_FOLDER = Path(__file__).resolve().parent.parent.parent
-PROJECT_FOLDER = Path.cwd().resolve()
-
-
 app = Flask(
     __name__,
-    static_folder=PROJECT_FOLDER / "static",
-    instance_path=str(PROJECT_FOLDER / "instance"),
+    static_folder=STATIC_FOLDER,
+    instance_path=str(INSTANCE_FOLDER),
 )
 SERVER_ADDRESS = ""
 
@@ -36,10 +29,10 @@ with app.app_context():
 # cf. "Récupération des produits" dans le pdf
 with app.app_context():
     fetch_and_upsert_products(
-        local_file=os.environ.get("APP_PRODUCTS_FILE") or None
+        location=os.environ.get("API_PRODUCTS_LOCATION") or INIT_PRODUCTS_LOCATION
     )  # None si la variable est une string vide ou n'est pas set
 
-if (os.environ.get("APP_USE_MOCKS") or "").upper() == "TRUE":
+if (os.environ.get("API_USE_MOCKS") or "").upper() == "TRUE":
     from shop_webapp.mock import use_mocks
 
     with app.app_context():

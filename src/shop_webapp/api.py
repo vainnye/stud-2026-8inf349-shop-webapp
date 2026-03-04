@@ -2,18 +2,16 @@
 Api endpoints
 """
 
-import random
-import string
 from datetime import date
-from enum import Enum, auto
+from enum import Enum
 from json import JSONDecodeError
-from typing import ClassVar, Self
 
 import requests
 from flask import Blueprint, current_app, request
-from peewee import DoesNotExist, IntegrityError
+from peewee import DoesNotExist
 from playhouse.shortcuts import model_to_dict
 
+from shop_webapp.config import API_URL_PATH
 from shop_webapp.model import (
     CreditCard,
     Order,
@@ -61,11 +59,9 @@ class Exc(ApiException, Enum):
 
 api = Blueprint("api", __name__)
 
-API_URL_PREFIX = "/api/"
-
 
 # THIRD_PARTY_PAYMENT_COMPLETE_URL = "http://dimensweb.uqac.ca/~jgnault/shops/pay/"
-THIRD_PARTY_PAYMENT_COMPLETE_URL = "http://127.0.0.1:5000/api/mocks/shops/pay/"
+THIRD_PARTY_PAYMENT_URL = "http://127.0.0.1:5000/api/mocks/shops/pay/"
 
 
 # à noter que le prof a mentionné l'endpoint "/" dans son pdf
@@ -144,7 +140,7 @@ def post_order():
     return (
         "",
         302,  # HTTP_302 Found
-        {"Location": f"{API_URL_PREFIX}order/{order.id}"},
+        {"Location": f"{API_URL_PATH.as_posix()}/order/{order.id}"},
     )
 
 
@@ -335,7 +331,7 @@ def update_order(id: int):
                 }
 
                 payment_response = requests.post(
-                    "" + THIRD_PARTY_PAYMENT_COMPLETE_URL, json=payment_payload
+                    "" + THIRD_PARTY_PAYMENT_URL, json=payment_payload
                 )
                 current_app.logger.debug(
                     f"Payment API response: {payment_response.status_code}"

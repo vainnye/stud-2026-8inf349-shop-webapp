@@ -12,7 +12,8 @@ from peewee import (
     SqliteDatabase,
     TextField,
 )
-from werkzeug.routing.rules import Weighting
+
+from shop_webapp.config import DATABASE_FILE
 
 """
 ## Good practices
@@ -22,7 +23,7 @@ même si les contraintes de la BD ne permettent pas d'avoir plusieurs backrefs
 Dans tous les cas ce sera une liste
 """
 
-db = SqliteDatabase("database.db")
+db = SqliteDatabase(str(DATABASE_FILE))
 
 
 class BaseModel(Model):
