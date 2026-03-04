@@ -1,5 +1,13 @@
 from shop_webapp.model import ShippingInformation
 
-i = ShippingInformation.get_or_none(ShippingInformation.order == 2)
+x = 0
 
-print(i)
+
+def toto():
+    global x
+    x = 5
+
+
+toto()
+
+print(x)

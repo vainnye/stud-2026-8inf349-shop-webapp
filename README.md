@@ -2,7 +2,22 @@
 
 > L'objectif du projet de session est de développer et déployer une application Web responsable du paiement de commandes Internet.
 
-## Dispclaimers
+## Le projet
+
+Le projet consiste à développer une application Web responsable de prendre des commandes Internet. Cette application devra répondre à une API REST, mais devra également être utilisée à travers des pages HTMLs.  
+Le projet est séparé en deux. Les informations pour la première remise sont disponibles dans cet énoncé. La section pour la deuxième remise sera disponible plus tard.
+Il s'agit de remises incrémentielles sur le même projet. Pour la deuxième remise, vous continuerez à utiliser le projet décrit ci-dessous.
+
+## Specs
+
+- language: Python 3.13
+- cadriciel dev. Web: Flask
+- ORM: Peewee
+- Base de données: SQLite3
+- dépendances de production: flask, pytest, pytest-flask, peewee, requests
+- dépendances de développement: types-peewee (pour le type checking)
+
+## Disclaimers
 
 - toute l'api tourne sous l'url "/api/"
 - l'endpoint de la liste des produits se trouve à "/api/produtcs/" au lieu de "/api/" dans le pdf du cours
@@ -21,21 +36,6 @@
 - GET /
 - GET /favicon.ico
 - GET /static/favicon.ico
-
-## Le projet
-
-Le projet consiste à développer une application Web responsable de prendre des commandes Internet. Cette application devra répondre à une API REST, mais devra également être utilisée à travers des pages HTMLs.  
-Le projet est séparé en deux. Les informations pour la première remise sont disponibles dans cet énoncé. La section pour la deuxième remise sera disponible plus tard.
-Il s'agit de remises incrémentielles sur le même projet. Pour la deuxième remise, vous continuerez à utiliser le projet décrit ci-dessous.
-
-## Specs
-
-- language: Python 3.13
-- cadriciel dev. Web: Flask
-- ORM: Peewee
-- Base de données: SQLite3
-- dépendances de production: flask, pytest, pytest-flask, peewee, requests
-- dépendances de développement: types-peewee (pour le type checking)
 
 ## Lancer l'app
 

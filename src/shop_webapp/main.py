@@ -3,11 +3,14 @@ import os
 from flask import Flask, send_from_directory
 
 from shop_webapp.api import api
-from shop_webapp.config import (
+from shop_webapp.globals import (
     API_URL_PATH,
     INIT_PRODUCTS_LOCATION,
     INSTANCE_FOLDER,
+    SERVER_ADDRESS,
     STATIC_FOLDER,
+    USE_MOCKS,
+    init_globals,
 )
 from shop_webapp.model import (
     CreditCard,
@@ -18,26 +21,25 @@ from shop_webapp.model import (
     Transaction,
     db,
 )
-from shop_webapp.util import fetch_and_upsert_products, get_server_address
+from shop_webapp.util import fetch_and_upsert_products
 
 app = Flask(
     __name__,
     static_folder=STATIC_FOLDER,
     instance_path=str(INSTANCE_FOLDER),
 )
-SERVER_ADDRESS = ""
+
+init_globals(app)
+
+# c'est le dossier dans lequel va la BD
+if not os.path.exists(INSTANCE_FOLDER):
+    os.makedirs(INSTANCE_FOLDER)
+
 
 with app.app_context():
-    SERVER_ADDRESS = get_server_address()
+    fetch_and_upsert_products(location=INIT_PRODUCTS_LOCATION)
 
-# un dump de l'api du prof est dans "./res/data/products.json"
-# cf. "Récupération des produits" dans le pdf
-with app.app_context():
-    fetch_and_upsert_products(
-        location=os.environ.get("API_PRODUCTS_LOCATION") or INIT_PRODUCTS_LOCATION
-    )  # None si la variable est une string vide ou n'est pas set
-
-if (os.environ.get("API_USE_MOCKS") or "").upper() == "TRUE":
+if USE_MOCKS:
     from shop_webapp.mock import use_mocks
 
     with app.app_context():
@@ -69,7 +71,7 @@ def after_request(response):
 
 # adding the api endpoints
 app.register_blueprint(api, url_prefix=API_URL_PATH.as_posix())
-app.logger.debug(f"api available at {SERVER_ADDRESS}/api/")
+app.logger.debug(f"api available at {SERVER_ADDRESS}{API_URL_PATH.as_posix()}/")
 app.logger.debug(
     "all api endpoints available: "
     + "; ".join(

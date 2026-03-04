@@ -11,7 +11,7 @@ from flask import Blueprint, current_app, request
 from peewee import DoesNotExist
 from playhouse.shortcuts import model_to_dict
 
-from shop_webapp.config import API_URL_PATH
+from shop_webapp.globals import API_URL_PATH, THIRD_PARTY_PAYMENT_URL
 from shop_webapp.model import (
     CreditCard,
     Order,
@@ -24,7 +24,6 @@ from shop_webapp.model import (
 from shop_webapp.util import (
     ValidationError,
     follows_schema,
-    get_server_address,
     validate_schema,
 )
 
@@ -58,10 +57,6 @@ class Exc(ApiException, Enum):
 
 
 api = Blueprint("api", __name__)
-
-
-# THIRD_PARTY_PAYMENT_COMPLETE_URL = "http://dimensweb.uqac.ca/~jgnault/shops/pay/"
-THIRD_PARTY_PAYMENT_URL = "http://127.0.0.1:5000/api/mocks/shops/pay/"
 
 
 # à noter que le prof a mentionné l'endpoint "/" dans son pdf
