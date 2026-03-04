@@ -35,21 +35,18 @@ init_globals(app)
 os.makedirs(INSTANCE_FOLDER, exist_ok=True)
 
 
+app.logger.debug("initializing database")
+db.create_tables(
+    [Product, Order, OrderProduct, CreditCard, ShippingInformation, Transaction]
+)
 fetch_and_upsert_products(app, location=INIT_PRODUCTS_LOCATION)
+app.logger.debug("database initialized")
+
 
 if USE_MOCKS:
     from shop_webapp.mock import use_mocks
 
     use_mocks(app)
-
-
-app.logger.debug("initializing database")
-db.connect()
-db.create_tables(
-    [Product, Order, OrderProduct, CreditCard, ShippingInformation, Transaction]
-)
-db.close()
-app.logger.debug("database initialized")
 
 
 # -----------------

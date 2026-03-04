@@ -6,7 +6,7 @@ from email.message import Message
 from flask import Flask
 from flask.globals import current_app
 
-from shop_webapp.model import Product, db
+from shop_webapp.model import Product
 
 # ---------------------------------------------
 #    minimal api data validation helpers
@@ -99,7 +99,6 @@ def _fetch_and_upsert_products(location: str):
         current_app.logger.debug(f"Loading products from local file: {location}")
         with open(location) as f:
             json_response = _json.load(f)
-            db.connect()
             # upserting products
             Product.insert_many(
                 json_response["products"],
@@ -114,7 +113,6 @@ def _fetch_and_upsert_products(location: str):
                     Product.price,
                 ],
             ).on_conflict_replace().execute()
-            db.close()
             current_app.logger.debug("database product list is up to date")
 
 
