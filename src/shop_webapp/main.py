@@ -32,8 +32,7 @@ app = Flask(
 init_globals(app)
 
 # c'est le dossier dans lequel va la BD
-if not os.path.exists(INSTANCE_FOLDER):
-    os.makedirs(INSTANCE_FOLDER)
+os.makedirs(INSTANCE_FOLDER, exist_ok=True)
 
 
 fetch_and_upsert_products(app, location=INIT_PRODUCTS_LOCATION)
