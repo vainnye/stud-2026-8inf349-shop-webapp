@@ -1,7 +1,10 @@
 import json
+import os
+from pathlib import Path
+from pickle import GLOBAL
 
 import requests
-from flask import Flask
+from flask import Flask, redirect, send_from_directory, url_for
 
 from shop_webapp.api import API_URL_PREFIX, api
 from shop_webapp.model import (
@@ -13,53 +16,34 @@ from shop_webapp.model import (
     Transaction,
     db,
 )
+from shop_webapp.util import fetch_and_upsert_products, get_server_address
 
-app = Flask(__name__)
+# PROJECT_FOLDER = Path(__file__).resolve().parent.parent.parent
+PROJECT_FOLDER = Path.cwd().resolve()
 
 
-def fetch_and_upsert_products(load_from_local_file=True):
-    """
-    Fetches product data from a remote API and upserts it into the local Product table.
+app = Flask(
+    __name__,
+    static_folder=PROJECT_FOLDER / "static",
+    instance_path=str(PROJECT_FOLDER / "instance"),
+)
+SERVER_ADDRESS = ""
 
-    cf. "Récupération des produits" dans le pdf
-    """
-    if not load_from_local_file:
-        try:
-            response = requests.get("http://dimensweb.uqac.ca/~jgnault/shops/products/")
-            response.raise_for_status()
-            json_response = response.json()
-        except requests.exceptions.RequestException as e:
-            msg = "failed to retrieve products on startup"
-            app.logger.debug(msg)
-            raise RuntimeError(msg) from e
-        except ValueError as e:
-            msg = "failed to retrieve products on startup"
-            app.logger.debug(msg)
-            raise RuntimeError(msg) from e
-        app.logger.debug("products fetched on startup")
-    else:
-        app.logger.debug("products loaded from local file")
-        with open("./res/data/products.json") as f:
-            json_response = json.load(f)
+with app.app_context():
+    SERVER_ADDRESS = get_server_address()
 
-    db.connect()
-    # upserting products
-    Product.insert_many(
-        json_response["products"],
-        # on filtre les fields au cas-où l'api du prof en a en trop
-        fields=[
-            Product.id,
-            Product.name,
-            Product.description,
-            Product.image,
-            Product.in_stock,
-            Product.weight,
-            Product.price,
-        ],
-    ).on_conflict_replace().execute()
-    db.close()
-    app.logger.debug("database product list is up to date")
+# un dump de l'api du prof est dans "./res/data/products.json"
+# cf. "Récupération des produits" dans le pdf
+with app.app_context():
+    fetch_and_upsert_products(
+        local_file=os.environ.get("APP_PRODUCTS_FILE") or None
+    )  # None si la variable est une string vide ou n'est pas set
 
+if (os.environ.get("APP_USE_MOCKS") or "").upper() == "TRUE":
+    from shop_webapp.mock import use_mocks
+
+    with app.app_context():
+        use_mocks()
 
 app.logger.debug("initializing database")
 db.connect()
@@ -68,10 +52,6 @@ db.create_tables(
 )
 db.close()
 app.logger.debug("database initialized")
-
-# fetch_and_upsert_products(load_from_local_file=True)  # development only
-fetch_and_upsert_products()
-# cf. "Récupération des produits" dans le pdf
 
 
 @app.before_request
@@ -91,10 +71,22 @@ def after_request(response):
 
 # adding the api endpoints
 app.register_blueprint(api, url_prefix=API_URL_PREFIX)
-app.logger.debug("api available at http://127.0.0.1:5000/api/")
+app.logger.debug(f"api available at {SERVER_ADDRESS}/api/")
 app.logger.debug(
-    f"all api available resources: {[r.rule for r in app.url_map.iter_rules() if r.endpoint.startswith('api.')]}"
+    "all api endpoints available: "
+    + "; ".join(
+        [
+            f"{r.rule!r} ({', '.join(r.methods or set())})"
+            for r in app.url_map.iter_rules()
+            if r.endpoint.startswith("api.")
+        ]
+    )
 )
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return send_from_directory(app.static_folder, "favicon.ico")  # type: ignore
 
 
 @app.get("/")

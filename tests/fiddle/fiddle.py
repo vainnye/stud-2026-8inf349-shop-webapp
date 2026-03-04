@@ -1,3 +1,5 @@
-from shop_webapp.model import Product
+from shop_webapp.model import ShippingInformation
 
-Product.get_by_id(10000)
+i = ShippingInformation.get_or_none(ShippingInformation.order == 2)
+
+print(i)

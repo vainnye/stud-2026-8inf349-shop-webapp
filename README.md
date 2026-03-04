@@ -2,6 +2,15 @@
 
 > L'objectif du projet de session est de développer et déployer une application Web responsable du paiement de commandes Internet.
 
+## TODO
+
+### refactoring
+
+- [ ] contraintes logique métiers (ex: prix > 0, qté > 0, ...) 
+- [ ] standardisation des erreurs 
+- [ ] standardisation de la validation des données (in et out) de l'API 
+- [ ] standardisation du mapping des données de la BD à celles de l'API sur les requêtes GET  
+
 ## Développement
 
 **Cloner le repo**
