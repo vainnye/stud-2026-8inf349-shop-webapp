@@ -8,7 +8,7 @@ from json import JSONDecodeError
 
 import requests
 from flask import Blueprint, current_app, request
-from peewee import DoesNotExist
+from peewee import DatabaseError, DoesNotExist, IntegrityError
 from playhouse.shortcuts import model_to_dict
 
 from shop_webapp.globals import API_URL_PATH, THIRD_PARTY_PAYMENT_URL
@@ -23,6 +23,8 @@ from shop_webapp.model import (
 )
 from shop_webapp.util import (
     ValidationError,
+    ValidationIncorrectValue,
+    ValidationMissingField,
     follows_schema,
     validate_schema,
 )
@@ -52,7 +54,7 @@ class Exc(ApiException, Enum):
     ThirdParty = "third-party"
     MissingFields = "missing-fields"
     IncompatibleFields = "incompatible-fields"
-    IncorrectFields = "incorrect-fields"
+    IncorrectValues = "incorrect-values"
     IncorrectNumber = "incorrect-number"  # credit card number
 
 
@@ -96,47 +98,34 @@ def post_order():
 
     try:
         validate_schema(json_payload, schema)
+        if json_payload["product"]["quantity"] < 1:
+            raise ValidationMissingField()
+
         product = Product.get_by_id(json_payload["product"]["id"])
-    except (TypeError, KeyError, DoesNotExist) as err:
-        current_app.logger.debug(err)
-        return (
-            {
-                "errors": {
-                    "product": {
-                        "code": "missing-fields",
-                        "name": "La création d'une commande nécessite un produit",
-                    }
-                }
-            },
-            422,  # HTTP_422 Unprocessable Entity
-        )
-
-    if not product.in_stock:
-        return (
-            {
-                "errors": {
-                    "product": {
-                        "code": "out-of-inventory",
-                        "name": "Le produit demandé n'est pas en inventaire",
-                    }
-                }
-            },
-            422,  # HTTP_422 Unprocessable Entity
-        )
-
-    try:
+        if not product.in_stock:
+            raise ApiException("out-of-inventory")(
+                422, "product", "Le produit demandé n'est pas en inventaire"
+            )
         order = place_order_for_product(product, json_payload["product"]["quantity"])
+        return (
+            "",
+            302,  # HTTP_302 Found
+            {"Location": f"{API_URL_PATH.as_posix()}/order/{order.id}"},
+        )
+    except ApiException as err:
+        current_app.logger.debug(f"{err!r}")
+        return err.error()
+    except (DoesNotExist, ValidationError, IntegrityError) as err:
+        current_app.logger.debug(err)
+        return Exc.MissingFields(
+            422, "product", "La création d'une commande nécessite un produit"
+        ).error()
     except Exception as err:
         current_app.logger.debug(err)
         return (
             "",
             500,  # HTTP_5XX Server error
         )
-    return (
-        "",
-        302,  # HTTP_302 Found
-        {"Location": f"{API_URL_PATH.as_posix()}/order/{order.id}"},
-    )
 
 
 @api.get("/order/<int:id>")
@@ -303,7 +292,7 @@ def update_order(id: int):
                 )
             cvv = json_payload["credit_card"]["cvv"]
             if len(cvv) != 3 or not cvv.isnumeric():
-                return Exc.IncorrectFields(
+                return Exc.IncorrectValues(
                     422, "credit_card", "Le cvv est doit être une string de 3 chiffres"
                 )
             with db.atomic():

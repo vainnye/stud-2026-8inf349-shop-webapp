@@ -13,12 +13,12 @@ def validate_schema(data, schema):
     Raises KeyError if a required field is missing.
     """
     if not isinstance(data, dict):
-        raise ValidationError(f"Expected dict, got {type(data).__name__}")
+        raise ValidationIncorrectValue(f"Expected dict, got {type(data).__name__}")
 
     for key, expected_type in schema.items():
         # 1. Check if the key exists
         if key not in data:
-            raise ValidationError(f"Missing required field: '{key}'")
+            raise ValidationMissingField(f"Missing required field: '{key}'")
 
         value = data[key]
 
@@ -28,7 +28,7 @@ def validate_schema(data, schema):
 
         # 3. Otherwise, check the type directly
         elif not isinstance(value, expected_type):
-            raise ValidationError(
+            raise ValidationIncorrectValue(
                 f"Field '{key}' expected {expected_type.__name__}, "
                 f"got {type(value).__name__} (value: {value})"
             )
@@ -47,7 +47,13 @@ def follows_schema(data, schema):
 class ValidationError(Exception):
     """Custom exception for schema validation errors."""
 
-    pass
+
+class ValidationMissingField(Exception):
+    """Custom exception for schema validation errors."""
+
+
+class ValidationIncorrectValue(Exception):
+    """Custom exception for schema validation errors."""
 
 
 def fetch_and_upsert_products(location: str):

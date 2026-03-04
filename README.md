@@ -21,7 +21,8 @@ Il s'agit de remises incrémentielles sur le même projet. Pour la deuxième rem
 
 - toute l'api tourne sous l'url "/api/"
 - l'endpoint de la liste des produits se trouve à "/api/produtcs/" au lieu de "/api/" dans le pdf du cours
-
+- Les consignes du TP ne font pas la différence entre les erreurs de type "field manquant" et "field existant mais valeur incorrecte" dans les données reçues par l'API. Notre code ne fait pas non plus la différence, bien qu'on l'ait codé de façon à pouvoir différencier ces erreurs avec les Exceptions `ValidationError`, `ValidationMissingField`, `ValidationIncorrectValue`.
+- pour des raisons de rapididté / simplicité / traçabilité du code, toutes les contraintes métier sur la base de données autre que le type de données et ses relations (ex: Check x > 0) sont actuellement gérées par l'API et non par l'ORM (peewee), il se peut que l'on change cela dans le futur avec l'augmentation de la taille de la codebase pour favoriser la maintenabilité long terme.
 
 ## liste de tous les endpoints
 

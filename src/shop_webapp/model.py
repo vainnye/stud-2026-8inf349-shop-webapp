@@ -4,6 +4,7 @@ from peewee import (
     AutoField,
     BooleanField,
     CharField,
+    Check,
     CompositeKey,
     FloatField,
     ForeignKeyField,
