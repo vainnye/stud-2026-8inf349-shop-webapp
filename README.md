@@ -81,7 +81,7 @@ FLASK_DEBUG=True FLASK_APP=inf349 flask run
 ## TODO
 
 ### refactoring
-pro
+
 - [X] contraintes logique métiers mentionnées dans le pdf (ex: qté > 0, ...) 
 - [X] utiliser `urllib` (lib std python) plutôt que `requests` car le prof ne l'a pas mentionnée
 - [ ] standardisation de la validation des données (in et out) de l'API (ça aurait été bien de pouvoir utiliser qqc comme pydantic mais le prof ne nous laisse pas utiliser d'autre librairies que celles mentionnées plus haut) 
