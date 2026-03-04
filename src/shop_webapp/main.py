@@ -54,17 +54,6 @@ db.close()
 app.logger.debug("database initialized")
 
 
-@app.before_request
-def before_request():
-    db.connect()
-
-
-@app.after_request
-def after_request(response):
-    db.close()
-    return response
-
-
 # -----------------
 # adding endpoints
 # -----------------
