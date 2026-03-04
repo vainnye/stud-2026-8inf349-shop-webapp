@@ -1,7 +1,7 @@
 import random
 import string
 
-from flask import current_app, request
+from flask import Flask, current_app, request
 
 import shop_webapp.globals as _globals
 from shop_webapp.api import api
@@ -14,7 +14,12 @@ from shop_webapp.globals import (
 from shop_webapp.util import ValidationError, validate_schema
 
 
-def use_mocks():
+def use_mocks(app: Flask):
+    with app.app_context():
+        _use_mocks()
+
+
+def _use_mocks():
     _globals.THIRD_PARTY_PAYMENT_URL = (
         SERVER_ADDRESS + (API_URL_PATH / MOCK_API_PAYMENT_PATH).as_posix()
     )

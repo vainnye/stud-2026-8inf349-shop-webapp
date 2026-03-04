@@ -1,6 +1,7 @@
 import json
 
 import requests
+from flask import Flask
 from flask.globals import current_app
 
 from shop_webapp.model import Product, db
@@ -56,13 +57,24 @@ class ValidationIncorrectValue(Exception):
     """Custom exception for schema validation errors."""
 
 
-def fetch_and_upsert_products(location: str):
+def fetch_and_upsert_products(app: Flask, location: str):
+    """
+    Fetches product data from a remote API and upserts it into the local Product table.
+
+    cf. "Récupération des produits" dans le pdf
+    """
+    with app.app_context():
+        _fetch_and_upsert_products(location)
+
+
+def _fetch_and_upsert_products(location: str):
     """
     Fetches product data from a remote API and upserts it into the local Product table.
 
     cf. "Récupération des produits" dans le pdf
     """
     if location.startswith("https://") or location.startswith("http://"):
+        current_app.logger.debug(f"Fetching products from remote API: {location}")
         try:
             response = requests.get(location)
             response.raise_for_status()
@@ -77,7 +89,7 @@ def fetch_and_upsert_products(location: str):
             raise RuntimeError(msg) from e
         current_app.logger.debug("products fetched on startup")
     else:
-        current_app.logger.debug("products loaded from local file")
+        current_app.logger.debug(f"Loading products from local file: {location}")
         with open(location) as f:
             json_response = json.load(f)
             db.connect()

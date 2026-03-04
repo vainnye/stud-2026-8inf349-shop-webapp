@@ -42,6 +42,10 @@ SERVER_ADDRESS = "http://127.0.0.1:5000"
 
 
 def init_globals(app: Flask):
+    """permet d'initialiser les variables globales relatives à l'application
+
+    (!) doit être exécuté juste après la création de l'objet app Flask
+    """
     global SERVER_ADDRESS
     SERVER_ADDRESS = get_server_address(app)
     if USE_MOCKS:

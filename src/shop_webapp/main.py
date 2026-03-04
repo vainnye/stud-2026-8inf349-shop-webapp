@@ -36,14 +36,13 @@ if not os.path.exists(INSTANCE_FOLDER):
     os.makedirs(INSTANCE_FOLDER)
 
 
-with app.app_context():
-    fetch_and_upsert_products(location=INIT_PRODUCTS_LOCATION)
+fetch_and_upsert_products(app, location=INIT_PRODUCTS_LOCATION)
 
 if USE_MOCKS:
     from shop_webapp.mock import use_mocks
 
-    with app.app_context():
-        use_mocks()
+    use_mocks(app)
+
 
 app.logger.debug("initializing database")
 db.connect()
