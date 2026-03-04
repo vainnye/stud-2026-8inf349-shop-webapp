@@ -82,10 +82,12 @@ FLASK_DEBUG=True FLASK_APP=inf349 flask run
 
 ### refactoring
 
-- [ ] modifier le nom de l'app flask pour la lancer avec FLASK_APP=inf349 plutôt que FLASK_APP=shop_webapp
-- [ ] contraintes logique métiers (ex: prix > 0, qté > 0, ...) 
+- [X] contraintes logique métiers mentionnées dans le pdf (ex: qté > 0, ...) 
+- [ ] utiliser `urllib` (lib std python) plutôt que `requests` car le prof ne l'a pas mentionnée
+- [ ] standardisation de la validation des données (in et out) de l'API (ça aurait été bien de pouvoir utiliser qqc comme pydantic mais le prof ne nous laisse pas utiliser d'autre librairies que celles mentionnées plus haut) 
+- [ ] modifier le nom de l'app flask pour la lancer avec FLASK_APP=inf349 plutôt que FLASK_APP=shop_webapp **(à faire en dernier pour minimiser les git diffs et merge)**
+- [ ] contraintes logique métiers non mentionnées dans le pdf (ex: prix > 0, , ...) 
 - [ ] standardisation des erreurs 
-- [ ] standardisation de la validation des données (in et out) de l'API 
 - [ ] standardisation du mapping des données de la BD à celles de l'API sur les requêtes GET  
 
 ## Développement
