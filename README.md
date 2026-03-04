@@ -116,6 +116,16 @@ exemple:
 uv run .\tests\fiddle\fetch_products.py
 ```
 
+### répertoire 
+
+- `res`: fichiers utilisées pour le développement qui ne doivent pas être utilisées en production
+- `instance`: fichiers créés par l'app ou api, ex: database.db
+- `static`: fichiers servis à l'adresse /static/ 
+- `src/nom_du_projet/`: code source
+- `tests/unit/`: tests unitaires
+- `tests/use_case/`: tests de cas d'utilisation
+- `tests/fiddle/`: tests et expérimentations en tout genre, éphémères
+
 ### bonnes pratiques
 
 **logging**  
