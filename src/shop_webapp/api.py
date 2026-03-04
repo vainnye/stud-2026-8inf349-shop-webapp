@@ -6,9 +6,8 @@ from datetime import date
 from enum import Enum
 from json import JSONDecodeError
 
-import requests
 from flask import Blueprint, current_app, request
-from peewee import DatabaseError, DoesNotExist, IntegrityError
+from peewee import DoesNotExist, IntegrityError
 from playhouse.shortcuts import model_to_dict
 
 from shop_webapp.globals import API_URL_PATH, THIRD_PARTY_PAYMENT_URL
@@ -23,9 +22,9 @@ from shop_webapp.model import (
 )
 from shop_webapp.util import (
     ValidationError,
-    ValidationIncorrectValue,
     ValidationMissingField,
     follows_schema,
+    http_post,
     validate_schema,
 )
 
@@ -314,8 +313,8 @@ def update_order(id: int):
                     "amount_charged": order.shipping_price,
                 }
 
-                payment_response = requests.post(
-                    "" + THIRD_PARTY_PAYMENT_URL, json=payment_payload
+                payment_response = http_post(
+                    "" + THIRD_PARTY_PAYMENT_URL, dict=payment_payload
                 )
                 current_app.logger.debug(
                     f"Payment API response: {payment_response.status_code}"

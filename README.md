@@ -14,7 +14,7 @@ Il s'agit de remises incrémentielles sur le même projet. Pour la deuxième rem
 - cadriciel dev. Web: Flask
 - ORM: Peewee
 - Base de données: SQLite3
-- dépendances de production: flask, pytest, pytest-flask, peewee, requests
+- dépendances de production: flask, pytest, pytest-flask, peewee
 - dépendances de développement: types-peewee (pour le type checking)
 
 ## Disclaimers
@@ -81,9 +81,9 @@ FLASK_DEBUG=True FLASK_APP=inf349 flask run
 ## TODO
 
 ### refactoring
-
+pro
 - [X] contraintes logique métiers mentionnées dans le pdf (ex: qté > 0, ...) 
-- [ ] utiliser `urllib` (lib std python) plutôt que `requests` car le prof ne l'a pas mentionnée
+- [X] utiliser `urllib` (lib std python) plutôt que `requests` car le prof ne l'a pas mentionnée
 - [ ] standardisation de la validation des données (in et out) de l'API (ça aurait été bien de pouvoir utiliser qqc comme pydantic mais le prof ne nous laisse pas utiliser d'autre librairies que celles mentionnées plus haut) 
 - [ ] modifier le nom de l'app flask pour la lancer avec FLASK_APP=inf349 plutôt que FLASK_APP=shop_webapp **(à faire en dernier pour minimiser les git diffs et merge)**
 - [ ] contraintes logique métiers non mentionnées dans le pdf (ex: prix > 0, , ...) 

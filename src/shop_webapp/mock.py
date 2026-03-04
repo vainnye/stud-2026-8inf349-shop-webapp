@@ -30,6 +30,49 @@ def _use_mocks():
 
     @api.post(MOCK_API_PAYMENT_PATH.as_posix() + "/")
     def third_party_api():
+        """
+        Mock endpoint for third-party payment API.
+
+        This endpoint simulates a payment gateway for testing purposes.
+        It randomly approves or declines credit card transactions.
+
+        example request body:
+        {
+            "credit_card": {
+                "name": "John Doe",
+                "number": "4242 4242 4242 4242",
+                "expiration_year": 2029,
+                "cvv": "123",
+                "expiration_month" : 9
+            }
+        }
+
+        example response body on succes (HTTP 200):
+        {
+            "credit_card": {
+                "name": "John Doe",
+                "first_digits": "4242",
+                "last_digits": "4242",
+                "expiration_year": 2024,
+                "expiration_month": 9,
+            },
+            "transaction": {
+                "id": "wgEQ4zAUdYqpr21rt8A10dDrKbfcLmqi",
+                "success": true,
+                "amount_charged": 10148,
+            },
+        }
+
+        example response body on error (HTTP 422 for this example):
+        {
+            "errors": {
+                "credit_card": {
+                    "code": "card-declined",
+                    "name": "La carte de crédit a été déclinée",
+                }
+            }
+        }
+        """
         current_app.logger.warning("Using mock payment API")
         try:
             json_payload = request.get_json()
