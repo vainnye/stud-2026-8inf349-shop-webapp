@@ -58,12 +58,20 @@ API_PRODUCTS_LOCATION="./res/data/products.json" API_USE_MOCKS=True flask run --
 
 **en full local**
 ```powershell
+<<<<<<< HEAD
 $env:API_PRODUCTS_LOCATION="./res/data/products.json"; $env:API_USE_MOCKS="True"; $env:FLASK_DEBUG="False"; $env:FLASK_APP="shop_webapp"; flask run;
+=======
+$env:API_PRODUCTS_LOCATION="./res/data/products.json"; $env:API_USE_MOCKS="True"; $env:FLASK_APP="shop_webapp"; flask run --debug;
+>>>>>>> origin/Frantxa
 ```
 
 **si t'as de la connexion internet**
 ```powershell
+<<<<<<< HEAD
 $env:API_PRODUCTS_LOCATION=""; $env:API_USE_MOCKS=""; $env:FLASK_DEBUG="False"; $env:FLASK_APP="shop_webapp"; flask run;
+=======
+$env:API_PRODUCTS_LOCATION=""; $env:API_USE_MOCKS="False"; $env:FLASK_APP="shop_webapp"; flask run --debug;
+>>>>>>> origin/Frantxa
 ```
 
 ### commandes qui fonctionnent pas
