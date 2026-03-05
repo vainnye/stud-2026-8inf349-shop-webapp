@@ -1,0 +1,72 @@
+Table Product [headercolor: #175e7a] {
+	id integer [ pk, increment, not null, unique ]
+	name varchar(255)
+	description text(65535)
+	image varchar(255)
+	in_stock boolean
+	weight integer
+	price numeric
+}
+
+Table Order [headercolor: #175e7a] {
+	id integer [ pk, increment, not null, unique ]
+	total_price numeric
+	total_price_tax numeric
+	email varchar(255)
+	paid boolean
+	shipping_price numeric
+}
+
+Table OrderProduct [headercolor: #175e7a] {
+	order_id integer [ pk, not null, unique ]
+	product_id integer [ pk, not null, unique ]
+	quantity integer [ not null ]
+
+	indexes {
+		(order_id, product_id) [ name: 'OrderProduct_index_0' ]
+	}
+}
+
+Table CreditCard [headercolor: #175e7a] {
+	order_id integer [ pk, not null, unique ]
+	name varchar(255)
+	number varchar(255)
+	expiration_year integer
+	cvv varchar(255)
+	expiration_month integer
+}
+
+Table ShippingInformation [headercolor: #175e7a] {
+	order_id integer [ pk, not null, unique ]
+	country varchar(255)
+	address varchar(255)
+	postal_code varchar(255)
+	city varchar(255)
+	province varchar(255)
+}
+
+Table Transaction [headercolor: #175e7a] {
+	order_id integer [ pk, not null, unique ]
+	success boolean
+	amount_charged numeric
+}
+
+Ref fk_OrderProduct_product_id_Product {
+	OrderProduct.product_id > Product.id [ delete: no action, update: no action ]
+}
+
+Ref fk_OrderProduct_order_id_Order {
+	OrderProduct.order_id > Order.id [ delete: no action, update: no action ]
+}
+
+Ref fk_CreditCard_order_id_Order {
+	CreditCard.order_id - Order.id [ delete: no action, update: no action ]
+}
+
+Ref fk_ShippingInformation_order_id_Order {
+	ShippingInformation.order_id - Order.id [ delete: no action, update: no action ]
+}
+
+Ref fk_Transaction_order_id_Order {
+	Transaction.order_id - Order.id [ delete: no action, update: no action ]
+}
