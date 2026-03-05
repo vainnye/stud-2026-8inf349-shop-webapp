@@ -314,7 +314,7 @@ def update_order(id: int):
                 }
 
                 payment_response = http_post(
-                    "" + THIRD_PARTY_PAYMENT_URL, dict=payment_payload
+                    "" + THIRD_PARTY_PAYMENT_URL, json=payment_payload
                 )
                 current_app.logger.debug(
                     f"Payment API response: {payment_response.status_code}"
