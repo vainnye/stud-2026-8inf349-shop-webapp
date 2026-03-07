@@ -1,0 +1,12 @@
+{
+  "order": {
+    "email": "jgnault@uqac.ca",
+    "shipping_information": {
+      "country": "Canada",
+      "address": "201, rue President-Kennedy",
+      "postal_code": "G7X 3Y7",
+      "city": "Chicoutimi",
+      "province": "QC"
+    }
+  }
+}
