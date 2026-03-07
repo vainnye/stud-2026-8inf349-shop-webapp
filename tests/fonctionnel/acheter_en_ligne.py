@@ -4,8 +4,8 @@ import random
 import shutil
 import subprocess
 
-from shop_webapp.globals import INSTANCE_FOLDER
-from shop_webapp.util import http_get, http_post
+from inf349.globals import INSTANCE_FOLDER
+from inf349.util import http_get, http_post
 
 """
 init-db
@@ -27,7 +27,7 @@ my_env = os.environ.copy()
 my_env["API_PRODUCTS_LOCATION"] = "./res/data/products.json"
 my_env["API_USE_MOCKS"] = "True"
 my_env["FLASK_DEBUG"] = "True"
-my_env["FLASK_APP"] = "shop_webapp"
+my_env["FLASK_APP"] = "inf349"
 
 HOST = "127.0.0.1"
 PORT = 5000

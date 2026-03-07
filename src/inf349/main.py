@@ -4,8 +4,8 @@ import click
 
 from flask import Flask, send_from_directory
 
-from shop_webapp.api import api
-from shop_webapp.globals import (
+from inf349.api import api
+from inf349.globals import (
     API_URL_PATH,
     DATABASE_FILE,
     INIT_PRODUCTS_LOCATION,
@@ -15,7 +15,7 @@ from shop_webapp.globals import (
     USE_MOCKS,
     init_globals,
 )
-from shop_webapp.model import (
+from inf349.model import (
     CreditCard,
     Order,
     OrderProduct,
@@ -24,7 +24,7 @@ from shop_webapp.model import (
     Transaction,
     db,
 )
-from shop_webapp.util import fetch_and_upsert_products
+from inf349.util import fetch_and_upsert_products
 
 app = Flask(
     __name__,
@@ -69,7 +69,7 @@ def run_api():
     fetch_and_upsert_products(app, location=INIT_PRODUCTS_LOCATION)
 
     if USE_MOCKS:
-        from shop_webapp.mock import use_mocks
+        from inf349.mock import use_mocks
 
         use_mocks(app)
 

@@ -2,8 +2,8 @@ import json
 
 from playhouse.shortcuts import model_to_dict
 
-from shop_webapp.api import place_order_for_product
-from shop_webapp.model import (
+from inf349.api import place_order_for_product
+from inf349.model import (
     CreditCard,
     Order,
     OrderProduct,

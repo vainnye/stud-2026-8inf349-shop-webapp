@@ -3,15 +3,15 @@ import string
 
 from flask import Flask, current_app, request
 
-import shop_webapp.globals as _globals
-from shop_webapp.api import api
-from shop_webapp.globals import (
+import inf349.globals as _globals
+from inf349.api import api
+from inf349.globals import (
     API_URL_PATH,
     MOCK_API_PAYMENT_PATH,
     SERVER_ADDRESS,
     THIRD_PARTY_PAYMENT_URL,
 )
-from shop_webapp.util import ValidationError, validate_schema
+from inf349.util import ValidationError, validate_schema
 
 
 def use_mocks(app: Flask):

@@ -13,7 +13,7 @@ from peewee import (
     TextField,
 )
 
-from shop_webapp.globals import DATABASE_FILE
+from inf349.globals import DATABASE_FILE
 
 """
 ## Good practices

@@ -1,6 +1,6 @@
 import requests
 
-from shop_webapp.model import Product
+from inf349.model import Product
 
 # retrieving products on startup
 try:

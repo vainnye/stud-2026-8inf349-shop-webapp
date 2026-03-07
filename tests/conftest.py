@@ -21,10 +21,10 @@ def app():
     """
     # Pattern 1: module exposes `app`
     try:
-        from shop_webapp import app as flask_app
+        from inf349 import app as flask_app
     except Exception:
         # Pattern 2: app defined in another file (adjust if your repo differs)
-        from shop_webapp.main import app as flask_app  # noqa: F401
+        from inf349.main import app as flask_app  # noqa: F401
 
     flask_app.config.update(
         TESTING=True,

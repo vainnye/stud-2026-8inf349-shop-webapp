@@ -6,7 +6,7 @@ from email.message import Message
 from flask import Flask
 from flask.globals import current_app
 
-from shop_webapp.model import Product
+from inf349.model import Product
 
 # ---------------------------------------------
 #    minimal api data validation helpers

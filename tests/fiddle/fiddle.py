@@ -1,4 +1,4 @@
-from shop_webapp.model import ShippingInformation
+from inf349.model import ShippingInformation
 
 x = 0
 

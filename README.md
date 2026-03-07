@@ -40,42 +40,37 @@ Il s'agit de remises incrémentielles sur le même projet. Pour la deuxième rem
 
 ## Lancer l'app
 
-### commandes qui fonctionnent
+variables:
+- `FLASK_APP`: inf349
+- `FLASK_DEBUG`: True ou False
+- `API_PRODUCTS_LOCATION`: ex: `./res/data/products.json`
+    permet de récupérer les produits depuis un fichier local
+    par défaut utilise les récupères à `https://dimensweb.uqac.ca/~jgnault/shops/products/`
+- `API_USE_MOCKS`: True, par défaut False
+    si True, crée et utilise l'endpoint '/api/mocks/shops/pay/' qui reproduit le comportement de l'endpoint du professeur
 
+### bash
+
+créer/recréer la base de données
 ```bash
-FLASK_APP=shop_webapp flask run --debug
+FLASK_DEBUG=True FLASK_APP=inf349 flask init-db
 ```
 
-Autres variables d'environnement dispnibles pour configurer l'app
-`API_PRODUCTS_LOCATION`: url ou chemin vers un fichier json contenant tous les produits en  
-`API_USE_MOCKS`: si "True" notre API utilise un endpoint mock '/api/mocks/' qui reproduit le comportement de l'endpoint du professeur 
-
+lancer l'api
 ```bash
-API_PRODUCTS_LOCATION="./res/data/products.json" API_USE_MOCKS=True flask run --debug
+FLASK_DEBUG=True FLASK_APP=inf349 flask run
 ```
 
-#### sur windows
+### powershell
 
-**en full local**
+créer/recréer la base de données
 ```powershell
-$env:API_PRODUCTS_LOCATION="./res/data/products.json"; $env:API_USE_MOCKS="True"; $env:FLASK_DEBUG="True"; $env:FLASK_APP="shop_webapp"; flask run;
+$env:FLASK_DEBUG="True"; $env:FLASK_APP="inf349"; flask init-db;
 ```
 
-**si t'as de la connexion internet**
+lancer l'api
 ```powershell
-$env:API_PRODUCTS_LOCATION=""; $env:API_USE_MOCKS=""; $env:FLASK_DEBUG="True"; $env:FLASK_APP="shop_webapp"; flask run;
-```
-
-### commandes qui fonctionnent pas
-
-initialiser la base de données
-```bash
-FLASK_DEBUG=True FLASK_APP=shop_webapp flask init-db
-```
-
-lancer l'app web
-```bash
-FLASK_DEBUG=True FLASK_APP=shop_webapp flask run
+$env:FLASK_DEBUG="True"; $env:FLASK_APP="inf349"; flask run;
 ```
 
 ## TODO
@@ -84,8 +79,8 @@ FLASK_DEBUG=True FLASK_APP=shop_webapp flask run
 
 - [X] contraintes logique métiers mentionnées dans le pdf (ex: qté > 0, ...) 
 - [X] utiliser `urllib` (lib std python) plutôt que `requests` car le prof ne l'a pas mentionnée
+- [X] modifier le nom de l'app flask pour la lancer avec FLASK_APP=inf349 plutôt que FLASK_APP=inf349 **(à faire en dernier pour minimiser les git diffs et merge)**
 - [ ] standardisation de la validation des données (in et out) de l'API (ça aurait été bien de pouvoir utiliser qqc comme pydantic mais le prof ne nous laisse pas utiliser d'autre librairies que celles mentionnées plus haut) 
-- [ ] modifier le nom de l'app flask pour la lancer avec FLASK_APP=inf349 plutôt que FLASK_APP=shop_webapp **(à faire en dernier pour minimiser les git diffs et merge)**
 - [ ] contraintes logique métiers non mentionnées dans le pdf (ex: prix > 0, , ...) 
 - [ ] standardisation des erreurs 
 - [ ] standardisation du mapping des données de la BD à celles de l'API sur les requêtes GET  
@@ -107,7 +102,7 @@ svp utilisez [uv](<README#Installer uv>) plutôt que pip, ça sera plus simple p
 **run le projet (l'app flask)**
 en debug mode (avec hot reload):
 ```bash
-flask --app shop_webapp --debug run
+flask --app inf349 --debug run
 ```
 
 **run un fichier faisant appel au projet**

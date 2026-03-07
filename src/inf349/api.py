@@ -10,8 +10,8 @@ from flask import Blueprint, current_app, request
 from peewee import DoesNotExist, IntegrityError
 from playhouse.shortcuts import model_to_dict
 
-from shop_webapp.globals import API_URL_PATH, THIRD_PARTY_PAYMENT_URL
-from shop_webapp.model import (
+from inf349.globals import API_URL_PATH, THIRD_PARTY_PAYMENT_URL
+from inf349.model import (
     CreditCard,
     Order,
     OrderProduct,
@@ -20,7 +20,7 @@ from shop_webapp.model import (
     Transaction,
     db,
 )
-from shop_webapp.util import (
+from inf349.util import (
     ValidationError,
     ValidationMissingField,
     follows_schema,

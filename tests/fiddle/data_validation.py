@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from shop_webapp.util import validate_schema
+from inf349.util import validate_schema
 
 schema = {"product": {"id": int, "quantity": int}}
 

@@ -1,4 +1,4 @@
-from shop_webapp.model import Order, OrderProduct, Product, Transaction
+from inf349.model import Order, OrderProduct, Product, Transaction
 
 o = (
     Order.insert(id=1, total_price=123, total_price_tax=1234, email="azbc")
