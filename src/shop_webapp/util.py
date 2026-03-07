@@ -55,11 +55,11 @@ class ValidationError(Exception):
     """Custom exception for schema validation errors."""
 
 
-class ValidationMissingField(Exception):
+class ValidationMissingField(ValidationError):
     """Custom exception for schema validation errors."""
 
 
-class ValidationIncorrectValue(Exception):
+class ValidationIncorrectValue(ValidationError):
     """Custom exception for schema validation errors."""
 
 
@@ -99,21 +99,21 @@ def _fetch_and_upsert_products(location: str):
         current_app.logger.debug(f"Loading products from local file: {location}")
         with open(location) as f:
             json_response = _json.load(f)
-            # upserting products
-            Product.insert_many(
-                json_response["products"],
-                # on filtre les fields au cas-où l'api du prof en a en trop
-                fields=[
-                    Product.id,
-                    Product.name,
-                    Product.description,
-                    Product.image,
-                    Product.in_stock,
-                    Product.weight,
-                    Product.price,
-                ],
-            ).on_conflict_replace().execute()
-            current_app.logger.debug("database product list is up to date")
+    # upserting products
+    Product.insert_many(
+        json_response["products"],
+        # on filtre les fields au cas-où l'api du prof en a en trop
+        fields=[
+            Product.id,
+            Product.name,
+            Product.description,
+            Product.image,
+            Product.in_stock,
+            Product.weight,
+            Product.price,
+        ],
+    ).on_conflict_replace().execute()
+    current_app.logger.debug("database product list is up to date")
 
 
 # ----------------------------------------------------

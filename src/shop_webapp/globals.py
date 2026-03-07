@@ -24,7 +24,7 @@ def get_server_address(app: Flask):
 USE_MOCKS = (os.environ.get("API_USE_MOCKS") or "").upper() == "TRUE"
 INIT_PRODUCTS_LOCATION = (
     os.environ.get("API_PRODUCTS_LOCATION")
-    or "http://dimensweb.uqac.ca/~jgnault/shops/products/"
+    or "https://dimensweb.uqac.ca/~jgnault/shops/products/"
 )
 # un dump de l'api du prof est dans "./res/data/products.json"
 # cf. "Récupération des produits" dans le pdf
@@ -37,7 +37,7 @@ DATABASE_FILE = INSTANCE_FOLDER / "database.db"
 
 MOCK_API_PAYMENT_PATH = Path("/mocks") / "shops" / "pay"
 
-THIRD_PARTY_PAYMENT_URL = "http://dimensweb.uqac.ca/~jgnault/shops/pay/"
+THIRD_PARTY_PAYMENT_URL = "https://dimensweb.uqac.ca/~jgnault/shops/pay/"
 SERVER_ADDRESS = "http://127.0.0.1:5000"
 
 

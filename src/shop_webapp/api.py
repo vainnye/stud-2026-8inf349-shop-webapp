@@ -291,7 +291,7 @@ def update_order(id: int):
                 )
             cvv = json_payload["credit_card"]["cvv"]
             if len(cvv) != 3 or not cvv.isnumeric():
-                return Exc.IncorrectValues(
+                raise Exc.IncorrectValues(
                     422, "credit_card", "Le cvv est doit être une string de 3 chiffres"
                 )
             with db.atomic():
@@ -330,7 +330,7 @@ def update_order(id: int):
                     try:
                         error_response = payment_response.json()
                         current_app.logger.debug(
-                            f"Payment API response json: {payment_response.status_code}"
+                            f"Payment API response json: {error_response}"
                         )
                         return error_response, payment_response.status_code
                     except JSONDecodeError:
@@ -347,13 +347,13 @@ def update_order(id: int):
                     "credit_card": {
                         "name": str,
                         "first_digits": str,
-                        "last_digits": str,
+                        "last_digits": int,  # c'était str dans le pdf mais la vraie API renvoie un int
                         "expiration_year": int,
                         "expiration_month": int,
                     },
                     "transaction": {
                         "id": str,
-                        "success": bool,
+                        "success": str,  # c'était bool dans le pdf mais la vraie API renvoie un str
                         "amount_charged": float,
                     },
                 }

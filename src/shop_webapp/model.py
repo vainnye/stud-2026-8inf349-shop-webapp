@@ -129,7 +129,7 @@ class ShippingInformation(BaseModel):
 class Transaction(BaseModel):
     order = ForeignKeyField(Order, primary_key=True, backref="transactions")
     id = CharField(unique=True)
-    success = BooleanField()
+    success = CharField()  # c'était bool dans le pdf mais la vraie API renvoie un str
     amount_charged = FloatField()
 
     def __str__(self):

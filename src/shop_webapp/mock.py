@@ -58,7 +58,7 @@ def _use_mocks():
             },
             "transaction": {
                 "id": "wgEQ4zAUdYqpr21rt8A10dDrKbfcLmqi",
-                "success": true,
+                "success": "true",
                 "amount_charged": 10148,
             },
         }
@@ -113,7 +113,8 @@ def _use_mocks():
                             random.choice(string.ascii_letters + string.digits)
                             for _ in range(32)
                         ),
-                        "success": True,
+                        # success était bool dans le pdf mais la vraie API renvoie un str
+                        "success": "true",
                         "amount_charged": amount_charged,
                     },
                 }, 200
