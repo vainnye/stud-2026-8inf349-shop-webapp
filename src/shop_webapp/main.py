@@ -1,10 +1,12 @@
 import os
+import shutil
 
 from flask import Flask, send_from_directory
 
 from shop_webapp.api import api
 from shop_webapp.globals import (
     API_URL_PATH,
+    DATABASE_FILE,
     INIT_PRODUCTS_LOCATION,
     INSTANCE_FOLDER,
     SERVER_ADDRESS,
@@ -31,17 +33,38 @@ app = Flask(
 
 init_globals(app)
 
-# c'est le dossier dans lequel va la BD
-os.makedirs(INSTANCE_FOLDER, exist_ok=True)
+
+@app.cli.command("init-db")
+def init_db_command():
+    """Initialise la base de données."""
+    
+    # réinitialiser la base de données
+    try:
+        os.remove(DATABASE_FILE)
+    except FileNotFoundError:
+        pass
+    os.makedirs(INSTANCE_FOLDER, exist_ok=True)
+    
+    db.connect(reuse_if_open=True)
+
+    db.create_tables([
+        Product,
+        Order,
+        OrderProduct,
+        ShippingInformation,
+        CreditCard,
+        Transaction,
+    ])
+
+    db.close()
+
+    app.logger.debug("Database initialized.")
 
 
-app.logger.debug("initializing database")
-db.create_tables(
-    [Product, Order, OrderProduct, CreditCard, ShippingInformation, Transaction]
-)
+if not os.path.exists(DATABASE_FILE):
+    app.logger.debug("Database file not found. please init the database using 'flask init-db'")
+
 fetch_and_upsert_products(app, location=INIT_PRODUCTS_LOCATION)
-app.logger.debug("database initialized")
-
 
 if USE_MOCKS:
     from shop_webapp.mock import use_mocks

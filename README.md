@@ -58,24 +58,24 @@ API_PRODUCTS_LOCATION="./res/data/products.json" API_USE_MOCKS=True flask run --
 
 **en full local**
 ```powershell
-$env:API_PRODUCTS_LOCATION="./res/data/products.json"; $env:API_USE_MOCKS="True"; $env:FLASK_DEBUG="False"; $env:FLASK_APP="shop_webapp"; flask run;
+$env:API_PRODUCTS_LOCATION="./res/data/products.json"; $env:API_USE_MOCKS="True"; $env:FLASK_DEBUG="True"; $env:FLASK_APP="shop_webapp"; flask run;
 ```
 
 **si t'as de la connexion internet**
 ```powershell
-$env:API_PRODUCTS_LOCATION=""; $env:API_USE_MOCKS=""; $env:FLASK_DEBUG="False"; $env:FLASK_APP="shop_webapp"; flask run;
+$env:API_PRODUCTS_LOCATION=""; $env:API_USE_MOCKS=""; $env:FLASK_DEBUG="True"; $env:FLASK_APP="shop_webapp"; flask run;
 ```
 
 ### commandes qui fonctionnent pas
 
 initialiser la base de données
 ```bash
-FLASK_DEBUG=True FLASK_APP=inf349 flask init-db
+FLASK_DEBUG=True FLASK_APP=shop_webapp flask init-db
 ```
 
 lancer l'app web
 ```bash
-FLASK_DEBUG=True FLASK_APP=inf349 flask run
+FLASK_DEBUG=True FLASK_APP=shop_webapp flask run
 ```
 
 ## TODO

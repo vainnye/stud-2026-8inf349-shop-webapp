@@ -58,7 +58,11 @@ def _use_mocks():
             },
             "transaction": {
                 "id": "wgEQ4zAUdYqpr21rt8A10dDrKbfcLmqi",
+<<<<<<< HEAD
                 "success": "true",
+=======
+                "success": true,
+>>>>>>> origin/frantxa
                 "amount_charged": 10148,
             },
         }
