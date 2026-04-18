@@ -9,13 +9,10 @@ log = logging.getLogger(__name__)
 
 _PRODUCT_FIELDS = {
     "name",
-    "type",
     "description",
     "image",
-    "height",
     "weight",
     "price",
-    "rating",
     "in_stock",
 }
 
@@ -77,16 +74,13 @@ def bootstrap_products(url: str) -> int:
 def product_to_dict(product: Product) -> Dict:
     """Serialize a Product instance to the JSON shape required by the spec."""
     return {
-        "id": product.id,
         "name": product.name,
-        "type": product.type,
-        "description": product.description,
-        "image": product.image,
-        "height": product.height,
-        "weight": product.weight,
-        "price": product.price,
-        "rating": product.rating,
+        "id": product.id,
         "in_stock": product.in_stock,
+        "description": product.description,
+        "price": product.price,
+        "weight": product.weight,
+        "image": product.image,
     }
 
 

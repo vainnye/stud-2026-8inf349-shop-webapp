@@ -79,15 +79,13 @@ def test_product_to_dict_has_expected_keys(db):
     product = Product.create(
         id=1,
         name="Brown eggs",
-        type="dairy",
         price=28.1,
         weight=400,
         in_stock=True,
     )
     data = product_to_dict(product)
     assert set(data.keys()) == {
-        "id", "name", "type", "description", "image",
-        "height", "weight", "price", "rating", "in_stock",
+        "name", "id", "in_stock", "description", "price", "weight", "image",
     }
     assert data["id"] == 1
     assert data["in_stock"] is True

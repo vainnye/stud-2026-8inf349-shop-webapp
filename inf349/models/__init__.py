@@ -40,13 +40,10 @@ class BaseModel(Model):
 class Product(BaseModel):
     id = IntegerField(primary_key=True)
     name = CharField()
-    type = CharField(null=True)
     description = TextField(null=True)
     image = CharField(null=True)
-    height = IntegerField(null=True)
     weight = IntegerField(null=True)
     price = FloatField()
-    rating = FloatField(null=True)
     in_stock = BooleanField(default=True)
 
 

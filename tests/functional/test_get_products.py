@@ -2,8 +2,7 @@ from inf349.models import Product
 
 
 PRODUCT_KEYS = {
-    "id", "name", "type", "description", "image",
-    "height", "weight", "price", "rating", "in_stock",
+    "name", "id", "in_stock", "description", "price", "weight", "image",
 }
 
 
@@ -18,13 +17,10 @@ def test_get_products_returns_all_products(client, db):
     Product.create(
         id=1,
         name="Brown eggs",
-        type="dairy",
         description="Raw organic brown eggs in a basket",
         image="0.jpg",
-        height=600,
         weight=400,
         price=28.1,
-        rating=4,
         in_stock=True,
     )
     Product.create(
