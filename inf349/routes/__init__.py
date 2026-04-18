@@ -1,7 +1,5 @@
 def register_blueprints(app):
-    """Register all Flask blueprints on the given app.
+    """Register all Flask blueprints on the given app."""
+    from .products import bp as products_bp
 
-    Blueprints will be added here as each feature (products, orders...) is
-    implemented in the following steps of the project.
-    """
-    return None
+    app.register_blueprint(products_bp)

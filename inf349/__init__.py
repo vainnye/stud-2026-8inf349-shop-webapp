@@ -19,10 +19,29 @@ def create_app(config=None):
 
     @app.teardown_request
     def _db_close(exc):
+        if app.config.get("TESTING"):
+            return
         if not db.is_closed():
             db.close()
 
     register_blueprints(app)
     register_cli(app)
 
+    _bootstrap_products(app, db)
+
     return app
+
+
+def _bootstrap_products(app, db):
+    if app.config.get("TESTING") or app.config.get("SKIP_PRODUCTS_SEED"):
+        return
+
+    from .services.products import bootstrap_products
+
+    if db.is_closed():
+        db.connect(reuse_if_open=True)
+    try:
+        bootstrap_products(app.config["PRODUCTS_URL"])
+    finally:
+        if not db.is_closed():
+            db.close()
