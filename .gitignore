@@ -1,12 +1,33 @@
-# Python-generated files
+# Python
 __pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
 
-# Virtual environments
-.venv
+# Base locale
+instance/
+*.db
+*.sqlite
+*.sqlite3
 
-database.db
+# Environnement
+.env
+.env.*
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Couverture / tests
+.coverage
+htmlcov/
+.cache/
+
+# Claude / IA
+.claude/
+.ai/
+CLAUDE.md
