@@ -1,6 +1,6 @@
-from api8inf349 import create_app
-from api8inf349.config import TestConfig
-from api8inf349.db import database_proxy
+from inf349 import create_app
+from inf349.config import TestConfig
+from inf349.db import database_proxy
 
 
 def test_app_factory_builds_app():
