@@ -7,11 +7,11 @@ class Config:
 
     PRODUCTS_URL = os.environ.get(
         "PRODUCTS_URL",
-        "http://dimprojetu.uqac.ca/~jgnault/shops/products/",
+        "https://dimensweb.uqac.ca/~jgnault/shops/products/",
     )
     PAYMENT_URL = os.environ.get(
         "PAYMENT_URL",
-        "http://dimprojetu.uqac.ca/~jgnault/shops/pay/",
+        "https://dimensweb.uqac.ca/~jgnault/shops/pay/",
     )
 
     REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")

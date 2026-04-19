@@ -41,7 +41,8 @@ def test_get_order_returns_expected_shape(client, db):
     assert o["transaction"] == {}
     assert o["product"] == {"id": 1, "quantity": 2}
     assert o["total_price"] == 20.0
-    assert o["shipping_price"] == 5
+    # weight = 400g * 2 = 800g → palier 500 < w < 2000 → 10$
+    assert o["shipping_price"] == 10
     assert o["total_price_tax"] == 20.0
 
 

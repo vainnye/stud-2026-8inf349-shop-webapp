@@ -12,11 +12,17 @@ from .pricing import (
 class OrderValidationError(Exception):
     """Raised when an order payload cannot be accepted."""
 
-    def __init__(self, code: str, name: str, field: str = "product"):
+    def __init__(self, code: str, name: str, field: str = "product",
+                 remote_relay: bool = False):
         super().__init__(name)
         self.code = code
         self.name = name
         self.field = field
+        # When True, the HTTP layer should emit the response literally
+        # ({field: {code, name}}) without the `errors` wrapper, to match the
+        # PDF example (page 10) for card-declined responses relayed from the
+        # remote payment service.
+        self.remote_relay = remote_relay
 
 
 class OrderNotFoundError(Exception):
@@ -34,6 +40,19 @@ _MISSING = (
 _OUT_OF_STOCK = (
     "out-of-inventory",
     "Le produit demandé n'est pas en inventaire",
+)
+_MISSING_ORDER_FIELDS = (
+    "missing-fields",
+    "Il manque un ou plusieurs champs qui sont obligatoires",
+)
+
+
+REQUIRED_SHIPPING_FIELDS = (
+    "country",
+    "address",
+    "postal_code",
+    "city",
+    "province",
 )
 
 
@@ -82,6 +101,61 @@ def get_order(order_id: int) -> Order:
     order = Order.get_or_none(Order.id == order_id)
     if order is None:
         raise OrderNotFoundError(order_id)
+    return order
+
+
+def _raise_order_missing():
+    code, name = _MISSING_ORDER_FIELDS
+    raise OrderValidationError(code, name, field="order")
+
+
+def _valid_non_empty_string(value):
+    return isinstance(value, str) and value.strip() != ""
+
+
+def _validate_shipping_information(raw):
+    if not isinstance(raw, dict):
+        return None
+    cleaned = {}
+    for key in REQUIRED_SHIPPING_FIELDS:
+        value = raw.get(key)
+        if not _valid_non_empty_string(value):
+            return None
+        cleaned[key] = value
+    return cleaned
+
+
+def update_client_info(order_id: int, payload: Dict) -> Order:
+    """Update email and shipping_information on an existing order.
+
+    Raises OrderNotFoundError if the order id does not exist.
+    Raises OrderValidationError(code="missing-fields", field="order") if the
+    payload is missing any required field.
+
+    Any other key in the payload is ignored: this endpoint cannot modify
+    id, product, paid, transaction, shipping_price, total_price or
+    total_price_tax.
+    """
+    order = get_order(order_id)
+
+    order_data = payload.get("order") if isinstance(payload, dict) else None
+    if not isinstance(order_data, dict):
+        _raise_order_missing()
+
+    email = order_data.get("email")
+    if not _valid_non_empty_string(email):
+        _raise_order_missing()
+
+    shipping = _validate_shipping_information(
+        order_data.get("shipping_information")
+    )
+    if shipping is None:
+        _raise_order_missing()
+
+    order.email = email
+    order.shipping_information = shipping
+    order.save()
+
     return order
 
 
