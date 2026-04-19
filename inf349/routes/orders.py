@@ -1,6 +1,12 @@
 from flask import Blueprint, jsonify, redirect, request
 
-from ..services.orders import OrderValidationError, create_order
+from ..services.orders import (
+    OrderNotFoundError,
+    OrderValidationError,
+    create_order,
+    get_order,
+    order_to_dict,
+)
 
 bp = Blueprint("orders", __name__)
 
@@ -23,3 +29,12 @@ def post_order():
             422,
         )
     return redirect(f"/order/{order.id}", code=302)
+
+
+@bp.route("/order/<int:order_id>", methods=["GET"])
+def get_order_detail(order_id):
+    try:
+        order = get_order(order_id)
+    except OrderNotFoundError:
+        return jsonify({"error": "not-found"}), 404
+    return jsonify(order_to_dict(order)), 200
