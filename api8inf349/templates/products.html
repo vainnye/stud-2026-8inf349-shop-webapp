@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Catalogue — Shop 8INF349{% endblock %}
+
+{% block content %}
+<h1>Catalogue de produits</h1>
+
+{% if error %}
+<div class="alert alert-danger">⚠ {{ error }}</div>
+{% endif %}
+
+{% if products %}
+<div class="grid grid-3">
+  {% for p in products %}
+  <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+
+    {% if p.image %}
+    <img
+      src="{{ p.image }}"
+      alt="{{ p.name }}"
+      onerror="this.style.display='none'"
+      style="width:100%; height:170px; object-fit:cover;">
+    {% endif %}
+
+    <div style="padding: 1.1rem; flex: 1; display: flex; flex-direction: column;">
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; margin-bottom:.3rem;">
+        <strong style="font-size:1rem;">{{ p.name }}</strong>
+        {% if p.in_stock %}
+          <span class="badge badge-success">En stock</span>
+        {% else %}
+          <span class="badge badge-danger">Hors stock</span>
+        {% endif %}
+      </div>
+
+      <p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">{{ p.weight }} g</p>
+
+      {% if p.description %}
+      <p style="font-size:.85rem; color:var(--muted); flex:1; margin-bottom:.75rem;">{{ p.description }}</p>
+      {% else %}
+      <div style="flex:1;"></div>
+      {% endif %}
+
+      <p style="font-size:1.2rem; font-weight:700; color:var(--primary); margin-bottom:.6rem;">
+        {{ "%.2f"|format(p.price) }}&nbsp;$
+      </p>
+
+      {% if p.in_stock %}
+      <form method="post" action="/order">
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <div style="display:flex; gap:.5rem; align-items:center;">
+          <input
+            type="number" name="quantity" value="1" min="1" max="99"
+            aria-label="Quantité"
+            style="width:5rem;">
+          <button type="submit" class="btn btn-primary btn-sm" style="flex:1;">
+            Commander
+          </button>
+        </div>
+      </form>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="alert alert-warning">⚠ Aucun produit disponible pour le moment.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+{% block title %}Commande #{{ order_id }} — Shop 8INF349{% endblock %}
+
+{% block content %}
+<div style="display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; flex-wrap:wrap;">
+  <h1 style="margin:0;">Commande <span style="color:var(--muted);">#{{ order_id }}</span></h1>
+  {% if order %}
+    {% if order.paid %}
+      <span class="badge badge-success" style="font-size:.85rem; padding:.2rem .7rem;">Payée</span>
+    {% elif order.transaction and order.transaction.success is false %}
+      <span class="badge badge-danger" style="font-size:.85rem; padding:.2rem .7rem;">Paiement refusé</span>
+    {% else %}
+      <span class="badge badge-muted" style="font-size:.85rem; padding:.2rem .7rem;">En attente</span>
+    {% endif %}
+  {% elif paying %}
+    <span class="badge badge-muted" style="font-size:.85rem; padding:.2rem .7rem;">Paiement en cours…</span>
+  {% endif %}
+</div>
+
+{# ── PAYING (page chargée pendant qu'un worker traite) ───────────────────── #}
+{% if paying %}
+<div class="card" id="section-paying">
+  <p style="font-size:1rem;">
+    <span class="spinner"></span>
+    Paiement en cours de traitement&hellip;
+  </p>
+  <p style="font-size:.85rem; color:var(--muted); margin-top:.5rem;">
+    Cette page se rafraîchit automatiquement dès que le paiement est confirmé.
+  </p>
+</div>
+
+{# ── ORDER LOADED ─────────────────────────────────────────────────────────── #}
+{% elif order %}
+
+{# ── Résumé produits + prix ───────────────────────────────────────────────── #}
+<div class="card">
+  <p class="section-title">Résumé de la commande</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th style="text-align:right;">Qté</th>
+        <th style="text-align:right;">Sous-total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.products %}
+      {% set prod = products.get(item.id) %}
+      <tr>
+        <td>{{ prod.name if prod else ('Produit #' ~ item.id) }}</td>
+        <td style="text-align:right;">{{ item.quantity }}</td>
+        <td style="text-align:right;">
+          {% if prod %}{{ "%.2f"|format(prod.price * item.quantity) }}&nbsp;${% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="max-width:300px; margin-left:auto;" class="price-list">
+    <div class="price-row">
+      <span>Sous-total</span>
+      <span>{{ "%.2f"|format(order.total_price) }}&nbsp;$</span>
+    </div>
+    <div class="price-row">
+      <span>Taxes</span>
+      <span>{{ "%.2f"|format(order.total_price_tax - order.total_price) }}&nbsp;$</span>
+    </div>
+    <div class="price-row">
+      <span>Expédition</span>
+      <span>{{ "%.2f"|format(order.shipping_price) }}&nbsp;$</span>
+    </div>
+    <div class="price-row total">
+      <span>Total (TTC + livraison)</span>
+      <span>{{ "%.2f"|format(order.total_price_tax + order.shipping_price) }}&nbsp;$</span>
+    </div>
+  </div>
+</div>
+
+{# ══ État 1 : PAYÉE ═══════════════════════════════════════════════════════════ #}
+{% if order.paid %}
+
+<div class="alert alert-success">✅ Commande payée avec succès !</div>
+
+<div class="card">
+  <p class="section-title">Confirmation</p>
+  <div class="cols-2">
+    <div>
+      <h3>Transaction</h3>
+      {% if order.transaction.id %}
+      <p style="font-size:.9rem;"><strong>ID :</strong> {{ order.transaction.id }}</p>
+      {% endif %}
+      <p style="font-size:.9rem;"><strong>Montant débité :</strong>
+        {{ "%.2f"|format(order.transaction.amount_charged) }}&nbsp;$
+      </p>
+    </div>
+    <div>
+      <h3>Carte utilisée</h3>
+      <p style="font-size:.9rem;">{{ order.credit_card.name }}</p>
+      <p style="font-size:.9rem; font-family:monospace;">
+        {{ order.credit_card.first_digits }}••••••••{{ order.credit_card.last_digits }}
+      </p>
+      <p style="font-size:.9rem;">
+        Exp.&nbsp;{{ order.credit_card.expiration_month }}/{{ order.credit_card.expiration_year }}
+      </p>
+    </div>
+  </div>
+
+  {% if order.email %}
+  <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+    <h3>Livraison</h3>
+    <p style="font-size:.9rem;">{{ order.email }}</p>
+    <p style="font-size:.9rem;">
+      {{ order.shipping_information.address }},
+      {{ order.shipping_information.city }},
+      {{ order.shipping_information.province }}&nbsp;&nbsp;{{ order.shipping_information.postal_code }},
+      {{ order.shipping_information.country }}
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+{% else %}{# not paid #}
+
+{# ══ Bannière erreur de paiement (si dernier essai refusé) ═══════════════════ #}
+{% if order.transaction and order.transaction.success is false %}
+<div class="alert alert-danger">
+  ❌ Paiement refusé :
+  {% if order.transaction.error %}
+    {{ order.transaction.error.name }}
+  {% else %}
+    Erreur inconnue.
+  {% endif %}
+  Veuillez vérifier vos informations et réessayer.
+</div>
+{% endif %}
+
+{# ══ État 2 : INFOS CLIENT ════════════════════════════════════════════════════ #}
+{% if order.email %}
+{# Infos déjà enregistrées → affichage lecture seule + bouton modifier #}
+<div class="card" id="section-info-display">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.65rem;">
+    <p class="section-title" style="margin:0;">Informations client</p>
+    <button class="btn btn-ghost btn-sm" onclick="toggleEditInfo()">Modifier</button>
+  </div>
+  <p style="font-size:.9rem;"><strong>Email :</strong> {{ order.email }}</p>
+  <p style="font-size:.9rem; margin-top:.25rem;">
+    <strong>Adresse :</strong>
+    {{ order.shipping_information.address }},
+    {{ order.shipping_information.city }},
+    {{ order.shipping_information.province }}&nbsp;&nbsp;{{ order.shipping_information.postal_code }},
+    {{ order.shipping_information.country }}
+  </p>
+</div>
+{% endif %}
+
+{# Formulaire infos client (visible si pas d'infos, ou en mode édition) #}
+<div class="card" id="section-info-form"{% if order.email %} style="display:none;"{% endif %}>
+  <p class="section-title">{% if order.email %}Modifier les informations{% else %}Informations client{% endif %}</p>
+  <form id="form-info" novalidate>
+
+    <div class="form-group">
+      <label for="f-email">Adresse courriel</label>
+      <input type="email" id="f-email" name="email"
+        value="{{ order.email or '' }}"
+        placeholder="votre@email.com" required>
+    </div>
+
+    <p class="section-title" style="margin-top:.25rem;">Adresse de livraison</p>
+
+    <div class="form-group">
+      <label for="f-address">Rue et numéro</label>
+      <input type="text" id="f-address" name="address"
+        value="{{ order.shipping_information.address if order.shipping_information else '' }}"
+        placeholder="125 rue Gagnon" required>
+    </div>
+
+    <div class="cols-2">
+      <div class="form-group">
+        <label for="f-city">Ville</label>
+        <input type="text" id="f-city" name="city"
+          value="{{ order.shipping_information.city if order.shipping_information else '' }}"
+          placeholder="Chicoutimi" required>
+      </div>
+      <div class="form-group">
+        <label for="f-province">Province</label>
+        <input type="text" id="f-province" name="province"
+          value="{{ order.shipping_information.province if order.shipping_information else '' }}"
+          placeholder="QC" maxlength="2" required>
+      </div>
+    </div>
+
+    <div class="cols-2">
+      <div class="form-group">
+        <label for="f-postal">Code postal</label>
+        <input type="text" id="f-postal" name="postal_code"
+          value="{{ order.shipping_information.postal_code if order.shipping_information else '' }}"
+          placeholder="G7X 3Y5" required>
+      </div>
+      <div class="form-group">
+        <label for="f-country">Pays</label>
+        <input type="text" id="f-country" name="country"
+          value="{{ order.shipping_information.country if order.shipping_information else '' }}"
+          placeholder="Canada" required>
+      </div>
+    </div>
+
+    <p class="field-error" id="error-info"></p>
+
+    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary" id="btn-info-submit">
+        Enregistrer
+      </button>
+      {% if order.email %}
+      <button type="button" class="btn btn-ghost" onclick="toggleEditInfo()">Annuler</button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{# ══ État 3 : FORMULAIRE DE PAIEMENT (visible seulement si infos client OK) ══ #}
+{% if order.email %}
+
+<div class="card" id="section-pay">
+  <p class="section-title">Paiement par carte</p>
+  <form id="form-pay" novalidate>
+
+    <div class="form-group">
+      <label for="f-cc-name">Nom sur la carte</label>
+      <input type="text" id="f-cc-name" name="cc_name"
+        placeholder="John Doe" required>
+    </div>
+
+    <div class="form-group">
+      <label for="f-cc-number">Numéro de carte</label>
+      <input type="text" id="f-cc-number" name="cc_number"
+        placeholder="4242 4242 4242 4242" maxlength="19" required>
+    </div>
+
+    <div class="cols-3">
+      <div class="form-group">
+        <label for="f-cc-month">Mois exp.</label>
+        <input type="number" id="f-cc-month" name="cc_exp_month"
+          placeholder="9" min="1" max="12" required>
+      </div>
+      <div class="form-group">
+        <label for="f-cc-year">Année exp.</label>
+        <input type="number" id="f-cc-year" name="cc_exp_year"
+          placeholder="2025" min="2024" max="2099" required>
+      </div>
+      <div class="form-group">
+        <label for="f-cc-cvv">CVV</label>
+        <input type="text" id="f-cc-cvv" name="cc_cvv"
+          placeholder="123" maxlength="4" required>
+      </div>
+    </div>
+
+    <p class="field-error" id="error-pay"></p>
+
+    <button type="submit" class="btn btn-primary" id="btn-pay-submit">
+      Payer {{ "%.2f"|format(order.total_price + order.shipping_price) }}&nbsp;$
+    </button>
+    <p style="font-size:.75rem; color:var(--muted); margin-top:.5rem;">
+      Montant débité = sous-total + expédition (hors taxes).
+    </p>
+  </form>
+</div>
+
+{# Spinner paiement (masqué jusqu'à la soumission) #}
+<div class="card" id="section-paying" style="display:none;">
+  <p><span class="spinner"></span> Paiement en cours de traitement&hellip;</p>
+  <p style="font-size:.85rem; color:var(--muted); margin-top:.4rem;">
+    Cette page se rafraîchit automatiquement.
+  </p>
+</div>
+
+{% endif %}{# order.email #}
+{% endif %}{# not paid #}
+{% endif %}{# paying / order #}
+
+{# ── JavaScript ───────────────────────────────────────────────────────────── #}
+<script>
+const orderId = {{ order_id }};
+
+/* ── Formulaire infos client ───────────────────────────────────────────────── */
+document.getElementById('form-info')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const f   = e.target;
+  const err = document.getElementById('error-info');
+  const btn = document.getElementById('btn-info-submit');
+  err.textContent = '';
+  btn.disabled = true;
+
+  const payload = {
+    order: {
+      email: f.email.value.trim(),
+      shipping_information: {
+        country:     f.country.value.trim(),
+        address:     f.address.value.trim(),
+        postal_code: f.postal_code.value.trim(),
+        city:        f.city.value.trim(),
+        province:    f.province.value.trim().toUpperCase(),
+      },
+    },
+  };
+
+  try {
+    const resp = await fetch('/order/' + orderId, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (resp.ok) {
+      location.reload();
+    } else {
+      const data = await resp.json();
+      err.textContent = data.errors?.order?.name || 'Erreur de validation.';
+      btn.disabled = false;
+    }
+  } catch {
+    err.textContent = 'Erreur réseau. Veuillez réessayer.';
+    btn.disabled = false;
+  }
+});
+
+/* ── Formulaire paiement ───────────────────────────────────────────────────── */
+document.getElementById('form-pay')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const f   = e.target;
+  const err = document.getElementById('error-pay');
+  const btn = document.getElementById('btn-pay-submit');
+  err.textContent = '';
+  btn.disabled = true;
+
+  const payload = {
+    credit_card: {
+      name:             f.cc_name.value.trim(),
+      number:           f.cc_number.value.replace(/\s+/g, ''),
+      expiration_year:  parseInt(f.cc_exp_year.value,  10),
+      expiration_month: parseInt(f.cc_exp_month.value, 10),
+      cvv:              f.cc_cvv.value.trim(),
+    },
+  };
+
+  try {
+    const resp = await fetch('/order/' + orderId, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (resp.status === 202 || resp.status === 409) {
+      document.getElementById('section-pay').style.display     = 'none';
+      document.getElementById('section-paying').style.display  = '';
+      pollOrder();
+    } else if (resp.status === 422) {
+      const data = await resp.json();
+      err.textContent =
+        data.errors?.credit_card?.name ||
+        data.credit_card?.name ||
+        'Erreur de paiement.';
+      btn.disabled = false;
+    } else {
+      err.textContent = 'Erreur inattendue (' + resp.status + ').';
+      btn.disabled = false;
+    }
+  } catch {
+    err.textContent = 'Erreur réseau. Veuillez réessayer.';
+    btn.disabled = false;
+  }
+});
+
+/* ── Polling GET /order/<id> (JSON) jusqu'à résolution ────────────────────── */
+async function pollOrder() {
+  try {
+    const resp = await fetch('/order/' + orderId, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (resp.status === 202) {
+      setTimeout(pollOrder, 2000);
+    } else {
+      location.reload();
+    }
+  } catch {
+    setTimeout(pollOrder, 3000);
+  }
+}
+
+/* ── Afficher / masquer le formulaire d'édition des infos client ───────────── */
+function toggleEditInfo() {
+  const display = document.getElementById('section-info-display');
+  const form    = document.getElementById('section-info-form');
+  if (!form) return;
+  const editing = form.style.display !== 'none';
+  form.style.display    = editing ? 'none' : '';
+  if (display) display.style.display = editing ? '' : 'none';
+}
+
+/* ── Démarrage auto-poll si le paiement était déjà en cours au chargement ─── */
+{% if paying %}
+document.addEventListener('DOMContentLoaded', pollOrder);
+{% endif %}
+</script>
+{% endblock %}

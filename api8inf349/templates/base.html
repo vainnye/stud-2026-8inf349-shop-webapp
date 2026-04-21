@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Shop 8INF349{% endblock %}</title>
+  <style>
+    /* ── Variables ───────────────────────────────────────────────────────── */
+    :root {
+      --primary:   #2563eb;
+      --primary-h: #1d4ed8;
+      --success:   #16a34a;
+      --danger:    #dc2626;
+      --bg:        #f1f5f9;
+      --surface:   #ffffff;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --r:         8px;
+      --shadow:    0 1px 3px rgba(0,0,0,.08);
+    }
+
+    /* ── Reset ───────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.6;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────────────────── */
+    nav {
+      background: var(--primary); color: #fff;
+      padding: .7rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+    }
+    nav .brand { color: #fff; font-weight: 700; font-size: 1.1rem; letter-spacing: -.01em; }
+    nav .brand:hover { text-decoration: none; opacity: .9; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+    footer {
+      text-align: center; padding: 1.25rem; color: var(--muted);
+      font-size: .8rem; border-top: 1px solid var(--border);
+    }
+
+    /* ── Typography ──────────────────────────────────────────────────────── */
+    h1 { font-size: 1.6rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 1.05rem; margin-bottom: .65rem; }
+    h3 { font-size: .9rem;  margin-bottom: .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1.25rem; margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Grids ───────────────────────────────────────────────────────────── */
+    .grid { display: grid; gap: 1rem; }
+    @media (min-width: 540px)  { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 780px)  { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 480px)  { .cols-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; } }
+    @media (min-width: 480px)  { .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; } }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block; padding: .5rem 1.2rem; border-radius: var(--r);
+      border: none; cursor: pointer; font-size: .9rem; font-weight: 600;
+      transition: background .15s, opacity .15s; white-space: nowrap;
+    }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-primary  { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-h); }
+    .btn-ghost    { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-sm       { padding: .28rem .75rem; font-size: .8rem; }
+
+    /* ── Forms ───────────────────────────────────────────────────────────── */
+    .form-group { margin-bottom: .85rem; }
+    label {
+      display: block; font-size: .78rem; font-weight: 700; margin-bottom: .28rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
+    }
+    input[type=text], input[type=email], input[type=number], input[type=password] {
+      width: 100%; padding: .45rem .75rem; border: 1px solid var(--border);
+      border-radius: var(--r); font-size: .9rem; background: #fff; color: var(--text);
+      transition: border-color .15s;
+    }
+    input:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: transparent; }
+    .field-error { color: var(--danger); font-size: .8rem; margin-top: -.55rem; margin-bottom: .7rem; min-height: 1em; }
+
+    /* ── Alerts ──────────────────────────────────────────────────────────── */
+    .alert {
+      padding: .8rem 1rem; border-radius: var(--r); margin-bottom: 1rem;
+      font-size: .9rem; display: flex; align-items: flex-start; gap: .5rem;
+    }
+    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .alert-danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .alert-info    { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .alert-warning { background: #fef9c3; color: #713f12; border: 1px solid #fde68a; }
+
+    /* ── Badges ──────────────────────────────────────────────────────────── */
+    .badge { display: inline-block; padding: .1rem .55rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-danger  { background: #fee2e2; color: #991b1b; }
+    .badge-muted   { background: #f1f5f9; color: var(--muted); }
+
+    /* ── Table ───────────────────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { font-weight: 700; color: var(--muted); font-size: .78rem; text-transform: uppercase; }
+
+    /* ── Price summary ───────────────────────────────────────────────────── */
+    .price-list { margin-top: .75rem; }
+    .price-row  { display: flex; justify-content: space-between; padding: .25rem 0; font-size: .9rem; }
+    .price-row.total {
+      font-weight: 700; font-size: 1rem;
+      border-top: 2px solid var(--border); margin-top: .4rem; padding-top: .5rem;
+    }
+
+    /* ── Spinner ─────────────────────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 1rem; height: 1rem;
+      border: 2px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: .4rem;
+    }
+
+    /* ── Section divider ─────────────────────────────────────────────────── */
+    .section-title {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: .85rem;
+      padding-bottom: .4rem; border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="brand" href="/">🛒 Shop 8INF349</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>8INF349 &mdash; UQAC</footer>
+</body>
+</html>
