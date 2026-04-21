@@ -234,7 +234,8 @@
     <div class="form-group">
       <label for="f-cc-number">Numéro de carte</label>
       <input type="text" id="f-cc-number" name="cc_number"
-        placeholder="4242 4242 4242 4242" maxlength="19" required>
+        placeholder="4242 4242 4242 4242" maxlength="19" required
+        oninput="this.value=this.value.replace(/\s+/g,'').replace(/(.{4})(?=.)/g,'$1 ').substring(0,19)">
     </div>
 
     <div class="cols-3">
@@ -335,7 +336,8 @@ document.getElementById('form-pay')?.addEventListener('submit', async function (
   const payload = {
     credit_card: {
       name:             f.cc_name.value.trim(),
-      number:           f.cc_number.value.replace(/\s+/g, ''),
+      // UQAC payment service requires spaces every 4 digits.
+      number: f.cc_number.value.replace(/\s+/g, '').replace(/(.{4})(?=.)/g, '$1 '),
       expiration_year:  parseInt(f.cc_exp_year.value,  10),
       expiration_month: parseInt(f.cc_exp_month.value, 10),
       cvv:              f.cc_cvv.value.trim(),
