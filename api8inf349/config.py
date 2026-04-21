@@ -32,7 +32,9 @@ class Config:
         "https://dimensweb.uqac.ca/~jgnault/shops/pay/",
     )
 
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    # None when REDIS_URL is not set → synchronous mode (no worker needed).
+    # Set REDIS_URL explicitly in production / Docker to enable async RQ.
+    REDIS_URL = os.environ.get("REDIS_URL") or None
 
     TESTING = False
     DEBUG = False
@@ -45,6 +47,7 @@ class DevConfig(Config):
 class TestConfig(Config):
     TESTING = True
     DATABASE_URL = "sqlite:///:memory:"
+    REDIS_URL = None  # disable Redis in tests
 
 
 _CONFIGS = {
