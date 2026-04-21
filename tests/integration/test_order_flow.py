@@ -18,7 +18,7 @@ Scenario covered:
     6. A final GET /order/<id> reflects every change.
 """
 
-from inf349.models import Product
+from api8inf349.models import Product
 
 
 VALID_SHIPPING = {
@@ -48,7 +48,7 @@ MASKED_CARD = {
 
 ORDER_KEYS = {
     "shipping_information", "credit_card", "paid", "transaction",
-    "product", "total_price", "total_price_tax", "shipping_price",
+    "products", "total_price", "total_price_tax", "shipping_price",
     "email", "id",
 }
 
@@ -80,7 +80,7 @@ def test_full_order_flow_end_to_end(client, db, monkeypatch):
     assert initial["shipping_information"] == {}
     assert initial["credit_card"] == {}
     assert initial["transaction"] == {}
-    assert initial["product"] == {"id": 1, "quantity": 2}
+    assert initial["products"] == [{"id": 1, "quantity": 2}]
     assert initial["total_price"] == 20.0
     # no province yet → total_price_tax == total_price
     assert initial["total_price_tax"] == 20.0
@@ -118,28 +118,23 @@ def test_full_order_flow_end_to_end(client, db, monkeypatch):
             },
         }
 
-    from inf349.clients import payment as payment_client
+    from api8inf349.clients import payment as payment_client
     monkeypatch.setattr(payment_client, "charge", fake_charge)
 
+    # In TESTING mode (REDIS_URL=None) the payment runs synchronously and
+    # the route responds 202 immediately (task "queued").
     pay_resp = client.put(f"/order/{order_id}", json={"credit_card": VALID_CARD})
-    assert pay_resp.status_code == 200
-    paid = pay_resp.get_json()["order"]
-    assert paid["paid"] is True
-    assert paid["credit_card"] == MASKED_CARD
-    assert paid["transaction"]["id"] == "tx_integration_1"
-    assert paid["transaction"]["success"] is True
+    assert pay_resp.status_code == 202
     # Per PDF p.10: amount = total_price + shipping_price (no tax)
-    assert paid["transaction"]["amount_charged"] == 30.0
     assert captured["amount"] == 30.0
-    # Client info is preserved by the payment step.
-    assert paid["email"] == "jdoe@example.com"
-    assert paid["shipping_information"] == VALID_SHIPPING
 
     # ---- 6. Final GET reflects every mutation --------------------------
     final = client.get(f"/order/{order_id}").get_json()["order"]
     assert final["paid"] is True
     assert final["credit_card"] == MASKED_CARD
     assert final["transaction"]["id"] == "tx_integration_1"
+    assert final["transaction"]["success"] is True
+    assert final["transaction"]["amount_charged"] == 30.0
     assert final["email"] == "jdoe@example.com"
     assert final["shipping_information"] == VALID_SHIPPING
     assert final["total_price"] == 20.0
@@ -147,11 +142,11 @@ def test_full_order_flow_end_to_end(client, db, monkeypatch):
     assert final["shipping_price"] == 10
 
 
-def test_full_order_flow_declined_card_is_relayed_literally(
+def test_full_order_flow_declined_card_persisted_in_transaction(
     client, db, monkeypatch,
 ):
-    """A declined card is relayed to the client without the `errors` wrapper
-    (PDF page 10) and the order remains unpaid."""
+    """A declined card is persisted in transaction.error and the order stays
+    unpaid (async path: PUT returns 202, error visible via GET)."""
     Product.create(
         id=1, name="Brown eggs", price=10.0, weight=400, in_stock=True,
     )
@@ -172,20 +167,17 @@ def test_full_order_flow_declined_card_is_relayed_literally(
             }
         }
 
-    from inf349.clients import payment as payment_client
+    from api8inf349.clients import payment as payment_client
     monkeypatch.setattr(payment_client, "charge", fake_charge_declined)
 
+    # In TESTING mode (REDIS_URL=None) the task runs synchronously; route
+    # responds 202 once the (failed) charge is persisted.
     pay_resp = client.put(f"/order/{order_id}", json={"credit_card": VALID_CARD})
-    assert pay_resp.status_code == 422
-    assert pay_resp.get_json() == {
-        "credit_card": {
-            "code": "card-declined",
-            "name": "La carte de crédit a été déclinée.",
-        }
-    }
+    assert pay_resp.status_code == 202
 
-    # Order is not marked paid; no transaction persisted.
+    # Error is stored in the transaction field; order remains unpaid.
     after = client.get(f"/order/{order_id}").get_json()["order"]
     assert after["paid"] is False
-    assert after["transaction"] == {}
     assert after["credit_card"] == {}
+    assert after["transaction"]["success"] is False
+    assert after["transaction"]["error"]["code"] == "card-declined"
