@@ -296,8 +296,17 @@ def process_payment(order_id: int, credit_card: Dict,
 
         remote_cc = response.get("credit_card")
 
-        # Remote encodes declines / invalid data as
-        # {"credit_card": {"code": "...", "name": "..."}}
+        # The remote encodes errors in two possible shapes:
+        #   1. {"credit_card": {"code": "...", "name": "..."}}   ← PDF example
+        #   2. {"errors": {"credit_card": {"code": "...", "name": "..."}}}  ← actual UQAC service
+        # Normalise: if direct key is missing or not an error dict, check errors.
+        if not isinstance(remote_cc, dict) or "code" not in remote_cc:
+            errors_block = response.get("errors")
+            if isinstance(errors_block, dict):
+                cc_err = errors_block.get("credit_card")
+                if isinstance(cc_err, dict) and "code" in cc_err:
+                    remote_cc = cc_err  # treat as a direct error dict
+
         if isinstance(remote_cc, dict) and "code" in remote_cc and "name" in remote_cc:
             _persist_payment_failure(
                 order, amount_charged,
